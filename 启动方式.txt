@@ -1,0 +1,2 @@
+  cd 废土快递
+  npm start
