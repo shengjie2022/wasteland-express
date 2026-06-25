@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>废土快递</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- electronAPI polyfill for browser -->
+    <script>window.electronAPI = { platform: 'browser' };</script>
+
+    <div id="app">
+        <!-- 状态栏 -->
+        <div id="status-bar"></div>
+
+        <!-- 导航栏 -->
+        <div id="nav-bar">
+            <button class="nav-btn" id="nav-town">🏘️ 城镇</button>
+            <button class="nav-btn" id="nav-map">🗺️ 地图</button>
+            <button class="nav-btn" id="nav-vehicle">🚛 车辆</button>
+            <button class="nav-btn" id="nav-trade">🏪 交易</button>
+            <button class="nav-btn" id="nav-crew">👥 乘员</button>
+            <button class="nav-btn" id="nav-orders">📋 订单</button>
+            <button class="nav-btn" id="nav-achievements">🏆 成就</button>
+        </div>
+
+        <!-- 主内容区 -->
+        <div id="main-content">
+            <!-- 主菜单 -->
+            <div class="panel active" id="panel-menu">
+                <div class="menu-screen">
+                    <h1>废 土 快 递</h1>
+                    <p class="menu-subtitle">
+                        核战之后，文明崩塌。在辐射与废墟之间，<br>
+                        你驾驶着一辆改装货车，穿越危机四伏的美国废土，<br>
+                        在随机生成的城镇之间倒货求生。
+                    </p>
+                    <div class="menu-buttons">
+                        <button class="menu-btn" id="btn-standard">
+                            🚛 标准模式
+                            <span class="menu-btn-desc">完成3个主要订单 · 完整体验</span>
+                        </button>
+                        <button class="menu-btn" id="btn-speed">
+                            ⚡ 极速模式
+                            <span class="menu-btn-desc">单张地图 · 完成1个订单</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 城镇界面 -->
+            <div class="panel" id="panel-town">
+                <div id="town-content"></div>
+            </div>
+
+            <!-- 地图界面 -->
+            <div class="panel" id="panel-map">
+                <div class="map-container">
+                    <canvas id="map-canvas"></canvas>
+                    <div class="map-zoom-controls">
+                        <button onclick="ui.mapZoomIn()" title="放大">+</button>
+                        <span class="map-zoom-label" id="zoom-label">100%</span>
+                        <button onclick="ui.mapZoomOut()" title="缩小">−</button>
+                        <button onclick="ui.mapZoomReset()" title="重置视图">⟲</button>
+                    </div>
+                </div>
+                <div id="route-panel"></div>
+            </div>
+
+            <!-- 车辆改装界面 -->
+            <div class="panel" id="panel-vehicle">
+                <div id="vehicle-content"></div>
+            </div>
+
+            <!-- 交易界面 -->
+            <div class="panel" id="panel-trade">
+                <div id="trade-content"></div>
+            </div>
+
+            <!-- 乘员界面 -->
+            <div class="panel" id="panel-crew">
+                <div id="crew-content"></div>
+            </div>
+
+            <!-- 订单界面 -->
+            <div class="panel" id="panel-orders">
+                <div id="orders-content"></div>
+            </div>
+
+            <!-- 成就界面 -->
+            <div class="panel" id="panel-achievements">
+                <div id="achievements-content"></div>
+            </div>
+
+            <!-- 旅行界面 -->
+            <div class="panel" id="panel-travel">
+                <div id="travel-content"></div>
+            </div>
+
+            <!-- 事件界面 -->
+            <div class="panel" id="panel-event">
+                <div id="event-content"></div>
+            </div>
+        </div>
+
+        <!-- 游戏日志 -->
+        <div id="game-log"></div>
+    </div>
+
+    <!-- Toast提示 -->
+    <div id="toast-container"></div>
+
+    <!-- 脚本 -->
+    <script src="js/data.js"></script>
+    <script src="js/game.js"></script>
+    <script src="js/ui.js"></script>
+</body>
+</html>

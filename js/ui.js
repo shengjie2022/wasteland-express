@@ -1,5 +1,6 @@
 // ============================================================
-// 废土快递 - UI控制器
+// 废土快递 - UI控制器 v2.0
+// 新增：存档菜单、战术战斗选择、路线辐射预览、交易参考价、乘员经验条
 // ============================================================
 
 class UI {
@@ -10,9 +11,8 @@ class UI {
         this.mapCanvas = null;
         this.mapCtx = null;
         this.pendingEvent = null;
-        this.foundMod = null; // 搜索事件找到的零件
-
-        // 地图缩放/平移状态
+        this.foundMod = null;
+        this.pendingTactic = 0; // 战斗战术: 0=全力, 1=防守, 2=精准
         this.mapZoom = 1.0;
         this.mapMinZoom = 0.4;
         this.mapMaxZoom = 3.0;
@@ -30,34 +30,80 @@ class UI {
         this.mapCtx = this.mapCanvas?.getContext('2d');
         this.bindEvents();
         this.bindMapEvents();
-        this.showPanel('menu');
+        // 检查存档
+        if (this.game.hasSave()) {
+            this.showSaveLoadMenu();
+        } else {
+            this.showPanel('menu');
+        }
+    }
+
+    showSaveLoadMenu() {
+        const content = document.getElementById('main-content');
+        if (!content) return;
+        content.innerHTML = `
+            <div class="panel active" style="display:flex;align-items:center;justify-content:center">
+                <div class="menu-screen" style="max-width:400px">
+                    <h1>🚛 废土快递</h1>
+                    <p class="dim">Wasteland Express</p>
+                    <div class="save-load-menu">
+                        <button class="btn btn-accent btn-full" onclick="ui.handleContinue()">
+                            ▶️ 继续游戏
+                        </button>
+                        <button class="btn btn-primary btn-full" onclick="ui.showPanel('menu')">
+                            🆕 新游戏
+                        </button>
+                        <button class="btn btn-danger btn-full" onclick="ui.handleDeleteSave()">
+                            🗑️ 删除存档
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    handleContinue() {
+        if (this.game.loadGame()) {
+            audio._init();
+            audio.click();
+            if (this.game.state === 'gameover') {
+                this.showGameOver();
+            } else if (this.game.state === 'victory') {
+                this.showVictory();
+            } else {
+                this.showPanel('town');
+            }
+        } else {
+            this.showPanel('menu');
+        }
+    }
+
+    handleDeleteSave() {
+        if (confirm('确定删除存档？此操作不可恢复。')) {
+            this.game.deleteSave();
+            audio.click();
+            this.showPanel('menu');
+        }
     }
 
     // ========== 地图缩放/平移事件 ==========
     bindMapEvents() {
         const canvas = this.mapCanvas;
         if (!canvas) return;
-
-        // 鼠标滚轮缩放
         canvas.addEventListener('wheel', (e) => {
             e.preventDefault();
             const rect = canvas.getBoundingClientRect();
             const mouseX = e.clientX - rect.left;
             const mouseY = e.clientY - rect.top;
-
             const oldZoom = this.mapZoom;
             const zoomDelta = e.deltaY > 0 ? 0.9 : 1.1;
             this.mapZoom = Math.max(this.mapMinZoom, Math.min(this.mapMaxZoom, this.mapZoom * zoomDelta));
-
-            // 以鼠标位置为中心缩放
             const zoomRatio = this.mapZoom / oldZoom;
             this.mapPanX = mouseX - (mouseX - this.mapPanX) * zoomRatio;
             this.mapPanY = mouseY - (mouseY - this.mapPanY) * zoomRatio;
-
             this.renderMap();
         }, { passive: false });
 
-        // 鼠标拖拽平移
         canvas.addEventListener('mousedown', (e) => {
             if (e.button !== 0) return;
             this.mapDragging = true;
@@ -74,12 +120,9 @@ class UI {
             this.renderMap();
         });
 
-        window.addEventListener('mouseup', () => {
-            this.mapDragging = false;
-        });
+        window.addEventListener('mouseup', () => { this.mapDragging = false; });
     }
 
-    // 缩放控制按钮
     mapZoomIn() {
         const canvas = this.mapCanvas;
         if (!canvas) return;
@@ -115,28 +158,16 @@ class UI {
     showPanel(panelId) {
         document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
         const panel = document.getElementById(`panel-${panelId}`);
-        if (panel) {
-            panel.classList.add('active');
-            this.currentPanel = panelId;
-        }
-
-        // 更新导航栏激活状态
+        if (panel) { panel.classList.add('active'); this.currentPanel = panelId; }
         document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
         const activeNav = document.getElementById(`nav-${panelId}`);
         if (activeNav) activeNav.classList.add('active');
-
         this.refresh();
     }
 
     refresh() {
-        if (this.game.state === 'gameover') {
-            this.showGameOver();
-            return;
-        }
-        if (this.game.state === 'victory') {
-            this.showVictory();
-            return;
-        }
+        if (this.game.state === 'gameover') { this.showGameOver(); return; }
+        if (this.game.state === 'victory') { this.showVictory(); return; }
         switch (this.currentPanel) {
             case 'menu': break;
             case 'town': this.renderTown(); break;
@@ -156,7 +187,6 @@ class UI {
 
     // ========== 事件绑定 ==========
     bindEvents() {
-        // 主菜单
         document.getElementById('btn-standard')?.addEventListener('click', () => {
             this.game.startGame('standard');
             this.showPanel('town');
@@ -165,8 +195,6 @@ class UI {
             this.game.startGame('speed');
             this.showPanel('town');
         });
-
-        // 导航按钮
         document.getElementById('nav-town')?.addEventListener('click', () => {
             if (this.game.currentTown) this.showPanel('town');
         });
@@ -185,11 +213,9 @@ class UI {
         const g = this.game;
         const v = g.vehicle;
         if (!v) return;
-
         const stats = g.getVehicleStats();
         const bar = document.getElementById('status-bar');
         if (!bar) return;
-
         bar.innerHTML = `
             <div class="status-item" title="瓶盖（货币）">💰 ${g.money}</div>
             <div class="status-item" title="旧世界货币">🪙 ${g.oldWorldCurrency}</div>
@@ -217,52 +243,27 @@ class UI {
     renderTown() {
         const town = this.game.currentTown;
         if (!town) return;
-
         const content = document.getElementById('town-content');
         if (!content) return;
-
         const typeData = TOWN_TYPES[town.type];
         const completable = this.game.activeOrders.filter(o => o.toTown === town.id);
-
         content.innerHTML = `
             <div class="town-header">
                 <h2 style="color: ${typeData.color}">${town.name}</h2>
                 <span class="town-type" style="background: ${typeData.color}33; color: ${typeData.color}">${typeData.name}</span>
             </div>
-
-            ${completable.length > 0 ? `
-                <div class="notice success">
-                    ✅ 有${completable.length}个订单可以在此完成！已自动交付。
-                </div>
-            ` : ''}
-
+            ${completable.length > 0 ? `<div class="notice success">✅ 有${completable.length}个订单可以在此完成！已自动交付。</div>` : ''}
             <div class="town-actions">
-                <button class="btn btn-primary" onclick="ui.showPanel('orders')">
-                    📋 查看订单 <span class="badge">${this.game.availableOrders.length}</span>
-                </button>
-                <button class="btn btn-primary" onclick="ui.showPanel('trade')">
-                    🏪 交易市场
-                </button>
-                <button class="btn btn-primary" onclick="ui.showPanel('vehicle')">
-                    🔧 改装车辆 <span class="badge">${town.mods.length}</span>
-                </button>
-                <button class="btn btn-primary" onclick="ui.showPanel('crew')">
-                    👥 管理乘员
-                </button>
-                <button class="btn btn-warning" onclick="ui.handleTavernRest()">
-                    🍺 酒馆休息
-                </button>
-                <button class="btn btn-secondary" onclick="ui.handleRepair()">
-                    🔧 修理车辆
-                </button>
-                <button class="btn btn-secondary" onclick="ui.handleRefuel()">
-                    ⛽ 加满燃油
-                </button>
-                <button class="btn btn-accent" onclick="ui.showPanel('map')">
-                    🗺️ 查看地图 / 出发
-                </button>
+                <button class="btn btn-primary" onclick="ui.showPanel('orders')">📋 查看订单 <span class="badge">${this.game.availableOrders.length}</span></button>
+                <button class="btn btn-primary" onclick="ui.showPanel('trade')">🏪 交易市场</button>
+                <button class="btn btn-primary" onclick="ui.showPanel('vehicle')">🔧 改装车辆 <span class="badge">${town.mods.length}</span></button>
+                <button class="btn btn-primary" onclick="ui.showPanel('crew')">👥 管理乘员</button>
+                <button class="btn btn-warning" onclick="ui.handleTavernRest()">🍺 酒馆休息</button>
+                <button class="btn btn-secondary" onclick="ui.handleRepair()">🔧 修理车辆</button>
+                <button class="btn btn-secondary" onclick="ui.handleRefuel()">⛽ 加满燃油</button>
+                <button class="btn btn-accent" onclick="ui.handleSave()">💾 存档</button>
+                <button class="btn btn-accent" onclick="ui.showPanel('map')">🗺️ 查看地图 / 出发</button>
             </div>
-
             <div class="town-crew-available">
                 ${town.availableCrew.length > 0 ? `
                     <h3>可雇佣人员</h3>
@@ -277,31 +278,28 @@ class UI {
         `;
     }
 
+    handleSave() {
+        if (this.game.saveGame()) {
+            this.showToast('游戏已保存', 'success');
+        } else {
+            this.showToast('保存失败', 'error');
+        }
+    }
+
     // ========== 地图界面 ==========
     renderMap() {
         const canvas = this.mapCanvas;
         const ctx = this.mapCtx;
         if (!canvas || !ctx) return;
-
         canvas.width = canvas.clientWidth;
         canvas.height = canvas.clientHeight;
-
-        const w = canvas.width;
-        const h = canvas.height;
-        const zoom = this.mapZoom;
-        const panX = this.mapPanX;
-        const panY = this.mapPanY;
-
-        // 背景（全画布，不受变换影响）
+        const w = canvas.width, h = canvas.height;
+        const zoom = this.mapZoom, panX = this.mapPanX, panY = this.mapPanY;
         ctx.fillStyle = '#1a1a0e';
         ctx.fillRect(0, 0, w, h);
-
-        // 应用缩放/平移变换
         ctx.save();
         ctx.translate(panX, panY);
         ctx.scale(zoom, zoom);
-
-        // 绘制网格（覆盖可见区域）
         const gridSize = 40;
         const visibleLeft = -panX / zoom;
         const visibleTop = -panY / zoom;
@@ -309,7 +307,6 @@ class UI {
         const visibleBottom = (h - panY) / zoom;
         const gridStartX = Math.floor(visibleLeft / gridSize) * gridSize;
         const gridStartY = Math.floor(visibleTop / gridSize) * gridSize;
-
         ctx.strokeStyle = '#2a2a1e';
         ctx.lineWidth = 0.5;
         for (let x = gridStartX; x <= visibleRight; x += gridSize) {
@@ -318,11 +315,8 @@ class UI {
         for (let y = gridStartY; y <= visibleBottom; y += gridSize) {
             ctx.beginPath(); ctx.moveTo(visibleLeft, y); ctx.lineTo(visibleRight, y); ctx.stroke();
         }
-
         const map = this.game.map;
         if (!map) { ctx.restore(); return; }
-
-        // 地图内容居中偏移
         const baseOffX = (w / zoom - 900) / 2;
         const baseOffY = (h / zoom - 500) / 2;
 
@@ -332,20 +326,14 @@ class UI {
             const to = map.towns[route.to];
             const fx = from.x + baseOffX, fy = from.y + baseOffY;
             const tx = to.x + baseOffX, ty = to.y + baseOffY;
-
             const danger = route.danger;
             const r = Math.round(100 + danger * 155);
-            const g = Math.round(150 - danger * 100);
-            ctx.strokeStyle = route.radiation > 0 ? `rgba(100, 255, 100, 0.4)` : `rgba(${r}, ${g}, 50, 0.5)`;
-            ctx.lineWidth = 2;
+            const g2 = Math.round(150 - danger * 100);
+            ctx.strokeStyle = route.radiation > 0 ? `rgba(100, 255, 100, 0.4)` : `rgba(${r}, ${g2}, 50, 0.5)`;
+            ctx.lineWidth = route.radiation > 0 ? 3 : 2;
             ctx.setLineDash(route.radiation > 0 ? [5, 5] : []);
-            ctx.beginPath();
-            ctx.moveTo(fx, fy);
-            ctx.lineTo(tx, ty);
-            ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(fx, fy); ctx.lineTo(tx, ty); ctx.stroke();
             ctx.setLineDash([]);
-
-            // 路线信息
             const mx = (fx + tx) / 2, my = (fy + ty) / 2;
             ctx.fillStyle = '#b0a880';
             ctx.font = '10px monospace';
@@ -355,14 +343,10 @@ class UI {
 
         // 绘制城镇
         for (const town of map.towns) {
-            const x = town.x + baseOffX;
-            const y = town.y + baseOffY;
+            const x = town.x + baseOffX, y = town.y + baseOffY;
             const typeData = TOWN_TYPES[town.type];
             const isCurrent = this.game.currentTown?.id === town.id;
-
             const nodeR = isCurrent ? 14 : 10;
-
-            // 城镇圆点
             ctx.beginPath();
             ctx.arc(x, y, nodeR, 0, Math.PI * 2);
             ctx.fillStyle = isCurrent ? typeData.color : (town.visited ? typeData.color + '88' : '#555');
@@ -370,7 +354,6 @@ class UI {
             ctx.strokeStyle = isCurrent ? '#fff' : typeData.color;
             ctx.lineWidth = isCurrent ? 3 : 1.5;
             ctx.stroke();
-
             if (isCurrent) {
                 ctx.beginPath();
                 ctx.arc(x, y, 18, 0, Math.PI * 2);
@@ -378,19 +361,13 @@ class UI {
                 ctx.lineWidth = 1;
                 ctx.stroke();
             }
-
-            // 城镇名称
             ctx.fillStyle = isCurrent ? '#fff' : '#ccc';
             ctx.font = isCurrent ? 'bold 13px sans-serif' : '11px sans-serif';
             ctx.textAlign = 'center';
             ctx.fillText(town.name, x, y - 18);
-
-            // 类型标签
             ctx.fillStyle = typeData.color + '99';
             ctx.font = '9px sans-serif';
             ctx.fillText(typeData.name, x, y + 26);
-
-            // 订单目标标记
             const hasOrder = this.game.activeOrders.some(o => o.toTown === town.id);
             if (hasOrder) {
                 ctx.fillStyle = '#ff0';
@@ -403,13 +380,11 @@ class UI {
         if (this.game.travelProgress) {
             const tp = this.game.travelProgress;
             const from = map.towns[tp.route.from === tp.targetId ?
-                (tp.route.to === tp.targetId ? tp.route.from : tp.route.to) :
-                tp.route.from];
+                (tp.route.to === tp.targetId ? tp.route.from : tp.route.to) : tp.route.from];
             const to = map.towns[tp.targetId];
             const progress = tp.currentSegment / tp.totalSegments;
             const px = (from.x + (to.x - from.x) * progress) + baseOffX;
             const py = (from.y + (to.y - from.y) * progress) + baseOffY;
-
             ctx.fillStyle = '#ff0';
             ctx.font = '20px sans-serif';
             ctx.textAlign = 'center';
@@ -418,27 +393,25 @@ class UI {
 
         ctx.restore();
 
-        // 更新缩放显示
         const zoomLabel = document.getElementById('zoom-label');
         if (zoomLabel) zoomLabel.textContent = `${Math.round(zoom * 100)}%`;
-
-        // 路线选择面板
         this.renderRoutePanel();
     }
 
     renderRoutePanel() {
         const panel = document.getElementById('route-panel');
         if (!panel) return;
-
         if (!this.game.currentTown) {
             panel.innerHTML = '<p class="dim">旅途中...</p>';
             return;
         }
-
         const routes = this.game.getAvailableRoutes();
         panel.innerHTML = `
             <h3>可选路线</h3>
-            ${routes.map((r, i) => `
+            ${routes.map((r, i) => {
+                const dangerClass = r.danger > 0.5 ? 'danger' : (r.danger > 0.3 ? 'warning' : '');
+                const radiationLabel = r.radiation > 0 ? `<span class="radiation">☢️ 辐射${r.radiation}</span>` : '';
+                return `
                 <div class="route-card ${this.selectedRoute === i ? 'selected' : ''}"
                      onclick="ui.selectRoute(${i})">
                     <div class="route-dest">→ ${r.targetTown.name}
@@ -449,11 +422,14 @@ class UI {
                     <div class="route-stats">
                         <span>📏 ${r.distance}km</span>
                         <span class="${r.adjustedFuelCost > this.game.vehicle.fuel ? 'danger' : ''}">⛽ ${r.adjustedFuelCost}</span>
-                        <span class="${r.danger > 0.5 ? 'danger' : ''}">⚠️ ${Math.round(r.danger * 100)}%</span>
-                        ${r.radiation > 0 ? `<span class="radiation">☢️ ${r.radiation}</span>` : ''}
+                        <span class="${dangerClass}">⚠️ ${Math.round(r.danger * 100)}%</span>
+                        ${radiationLabel}
+                    </div>
+                    <div class="route-events">
+                        <span class="dim" title="预计遭遇次数">⚠️ 预计遭遇~${r.expectedEvents}次</span>
                     </div>
                 </div>
-            `).join('')}
+            `}).join('')}
             ${this.selectedRoute >= 0 ? `
                 <button class="btn btn-accent btn-full" onclick="ui.handleDepart()">
                     🚛 出发！
@@ -464,6 +440,7 @@ class UI {
 
     selectRoute(index) {
         this.selectedRoute = index;
+        audio.click();
         this.renderRoutePanel();
     }
 
@@ -471,13 +448,8 @@ class UI {
     renderTravel() {
         const content = document.getElementById('travel-content');
         if (!content) return;
-
         const tp = this.game.travelProgress;
-        if (!tp) {
-            content.innerHTML = '<p>旅行已结束</p>';
-            return;
-        }
-
+        if (!tp) { content.innerHTML = '<p>旅行已结束</p>'; return; }
         const progress = Math.round((tp.currentSegment / tp.totalSegments) * 100);
         content.innerHTML = `
             <div class="travel-info">
@@ -501,8 +473,42 @@ class UI {
     renderEvent() {
         const content = document.getElementById('event-content');
         if (!content || !this.pendingEvent) return;
-
         const event = this.pendingEvent;
+
+        // 强盗事件特殊UI：战术选择
+        if (event.key === 'bandit') {
+            content.innerHTML = `
+                <div class="event-card">
+                    <div class="event-icon">${event.icon}</div>
+                    <h2>${event.name}</h2>
+                    <p class="event-desc">${event.desc}</p>
+                    <div class="tactic-info">
+                        <h4>🎯 选择战术</h4>
+                        <div class="tactic-grid">
+                            <button class="btn btn-choice tactic-btn ${this.pendingTactic === 0 ? 'active' : ''}" onclick="ui.selectTactic(0)">
+                                <span class="tactic-name">⚔️ 全力攻击</span>
+                                <span class="tactic-desc">伤害+50%，受伤+50%，高风险高回报</span>
+                            </button>
+                            <button class="btn btn-choice tactic-btn ${this.pendingTactic === 1 ? 'active' : ''}" onclick="ui.selectTactic(1)">
+                                <span class="tactic-name">🛡️ 防守</span>
+                                <span class="tactic-desc">伤害-30%，受伤-60%，稳定胜率+15%</span>
+                            </button>
+                            <button class="btn btn-choice tactic-btn ${this.pendingTactic === 2 ? 'active' : ''}" onclick="ui.selectTactic(2)">
+                                <span class="tactic-name">🎯 精准打击</span>
+                                <span class="tactic-desc">随机波动大，胜利时敌方损失更多</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="event-choices">
+                        <button class="btn btn-danger" onclick="ui.handleEventChoice(0)">⚔️ 战斗（当前：${['全力攻击','防守','精准打击'][this.pendingTactic]}）</button>
+                        <button class="btn btn-warning" onclick="ui.handleEventChoice(1)">💰 贿赂</button>
+                        <button class="btn btn-secondary" onclick="ui.handleEventChoice(2)">🏃 逃跑</button>
+                    </div>
+                </div>
+            `;
+            return;
+        }
+
         content.innerHTML = `
             <div class="event-card">
                 <div class="event-icon">${event.icon}</div>
@@ -520,15 +526,19 @@ class UI {
         `;
     }
 
+    selectTactic(tactic) {
+        this.pendingTactic = tactic;
+        audio.click();
+        this.renderEvent();
+    }
+
     // ========== 车辆改装界面 ==========
     renderVehicle() {
         const content = document.getElementById('vehicle-content');
         if (!content) return;
-
         const v = this.game.vehicle;
         const stats = this.game.getVehicleStats();
         const slotNames = { cargo: '货舱', armor: '装甲', engine: '引擎', radar: '雷达', weapon: '武器' };
-
         content.innerHTML = `
             <div class="vehicle-info">
                 <h2>🚛 ${v.name}</h2>
@@ -540,7 +550,6 @@ class UI {
                     <div class="stat">探测 <span>${stats.detection}</span></div>
                     <div class="stat">油效 <span>${stats.fuelEfficiency > 0 ? '+' : ''}${stats.fuelEfficiency}%</span></div>
                 </div>
-
                 ${this.game.activeSetBonuses.length > 0 ? `
                     <div class="set-bonuses">
                         <h3>套装效果</h3>
@@ -550,7 +559,6 @@ class UI {
                     </div>
                 ` : ''}
             </div>
-
             <div class="mod-slots">
                 <h3>改装槽位</h3>
                 ${Object.entries(v.mods).map(([slot, modKey]) => {
@@ -559,9 +567,7 @@ class UI {
                         <div class="mod-slot ${mod ? 'filled' : 'empty'}">
                             <div class="slot-header">
                                 <span class="slot-name">${slotNames[slot]}</span>
-                                ${mod ? `
-                                    <span class="mod-rarity" style="color:${RARITY_COLORS[mod.rarity]}">[${RARITY_NAMES[mod.rarity]}]</span>
-                                ` : ''}
+                                ${mod ? `<span class="mod-rarity" style="color:${RARITY_COLORS[mod.rarity]}">[${RARITY_NAMES[mod.rarity]}]</span>` : ''}
                             </div>
                             ${mod ? `
                                 <div class="mod-info">
@@ -574,14 +580,11 @@ class UI {
                                     </div>
                                     <button class="btn btn-sm btn-danger" onclick="ui.handleUninstallMod('${slot}')">卸下</button>
                                 </div>
-                            ` : `
-                                <div class="mod-empty">空槽位</div>
-                            `}
+                            ` : `<div class="mod-empty">空槽位</div>`}
                         </div>
                     `;
                 }).join('')}
             </div>
-
             ${this.game.currentTown ? `
                 <div class="shop-mods">
                     <h3>可购买零件</h3>
@@ -635,14 +638,12 @@ class UI {
         return names[key] || key;
     }
 
-    // ========== 交易界面 ==========
+    // ========== 交易界面（带上次购入价） ==========
     renderTrade() {
         const content = document.getElementById('trade-content');
         if (!content) return;
-
         const town = this.game.currentTown;
         if (!town) return;
-
         const cargo = this.game.vehicle.cargo;
         const stats = this.game.getVehicleStats();
         const usedSpace = this.game.getUsedCargoSpace();
@@ -653,15 +654,18 @@ class UI {
                 <span>💰 ${this.game.money} 瓶盖</span>
                 <span>📦 ${usedSpace}/${stats.cargoSpace} 货舱</span>
             </div>
-
             <div class="trade-sections">
                 <div class="trade-section">
                     <h3>可购买</h3>
-                    ${Object.entries(town.goods).map(([key, good]) => `
+                    ${Object.entries(town.goods).map(([key, good]) => {
+                        const lastBuy = this.game.getLastBuyPrice(town.id, key);
+                        const lastBuyInfo = lastBuy ? `<span class="last-buy">上次购入: ${lastBuy.cost}💰</span>` : '';
+                        return `
                         <div class="trade-item">
                             <div class="item-info">
                                 <span>${GOODS[key]?.icon} ${GOODS[key]?.name}</span>
                                 <span class="stock">库存: ${good.stock}</span>
+                                ${lastBuyInfo}
                             </div>
                             <div class="item-actions">
                                 <span class="price buy-price">买 ${good.buyPrice}💰</span>
@@ -671,19 +675,21 @@ class UI {
                                     ${good.stock < 5 || this.game.money < good.buyPrice * 5 ? 'disabled' : ''}>+5</button>
                             </div>
                         </div>
-                    `).join('')}
+                    `}).join('')}
                 </div>
-
                 <div class="trade-section">
                     <h3>你的货物</h3>
                     ${Object.keys(cargo).length === 0 ? '<p class="dim">货舱空空如也</p>' :
                         Object.entries(cargo).filter(([_, amt]) => amt > 0).map(([key, amount]) => {
                             const sellPrice = town.goods[key]?.sellPrice ||
                                 Math.round(GOODS[key].basePrice * town.priceModifier * 0.5);
+                            const lastBuy = this.game.getLastBuyPrice(town.id, key);
+                            const profitInfo = lastBuy ? `<span class="trade-profit ${(sellPrice * amount - lastBuy.cost) > 0 ? 'profit' : 'loss'}">预期${sellPrice * amount - lastBuy.cost > 0 ? '+' : ''}${sellPrice * amount - lastBuy.cost}💰</span>` : '';
                             return `
                                 <div class="trade-item">
                                     <div class="item-info">
                                         <span>${GOODS[key]?.icon} ${GOODS[key]?.name} ×${amount}</span>
+                                        ${profitInfo}
                                     </div>
                                     <div class="item-actions">
                                         <span class="price sell-price">卖 ${sellPrice}💰</span>
@@ -699,15 +705,17 @@ class UI {
         `;
     }
 
-    // ========== 乘员界面 ==========
+    // ========== 乘员界面（带经验条） ==========
     renderCrew() {
         const content = document.getElementById('crew-content');
         if (!content) return;
-
         content.innerHTML = `
             <h2>👥 乘员管理</h2>
             <div class="crew-list">
-                ${this.game.crew.map(member => `
+                ${this.game.crew.map(member => {
+                    const expNeeded = this.game.getExpNeeded(member.level);
+                    const expPct = Math.round((member.exp / expNeeded) * 100);
+                    return `
                     <div class="crew-member-card ${member.sick ? 'sick' : ''} ${member.health <= 0 ? 'dead' : ''}">
                         <div class="crew-header">
                             <span class="crew-icon">${CREW_ROLES[member.role].icon}</span>
@@ -718,17 +726,18 @@ class UI {
                         <div class="crew-bars">
                             <div class="bar-container" title="生命值">
                                 <span class="bar-label">❤️</span>
-                                <div class="bar">
-                                    <div class="bar-fill health" style="width:${member.health}%"></div>
-                                </div>
+                                <div class="bar"><div class="bar-fill health" style="width:${member.health}%"></div></div>
                                 <span class="bar-value">${member.health}/${member.maxHealth}</span>
                             </div>
                             <div class="bar-container" title="理智值">
                                 <span class="bar-label">🧠</span>
-                                <div class="bar">
-                                    <div class="bar-fill sanity" style="width:${member.sanity}%"></div>
-                                </div>
+                                <div class="bar"><div class="bar-fill sanity" style="width:${member.sanity}%"></div></div>
                                 <span class="bar-value">${member.sanity}/${member.maxSanity}</span>
+                            </div>
+                            <div class="bar-container exp-bar" title="经验值">
+                                <span class="bar-label">⭐</span>
+                                <div class="bar"><div class="bar-fill exp-fill" style="width:${expPct}%"></div></div>
+                                <span class="bar-value">${member.exp}/${expNeeded}</span>
                             </div>
                         </div>
                         <div class="crew-desc">${CREW_ROLES[member.role].desc}</div>
@@ -736,9 +745,8 @@ class UI {
                             <button class="btn btn-sm btn-danger" onclick="ui.handleFireCrew('${member.id}')">解雇</button>
                         ` : ''}
                     </div>
-                `).join('')}
+                `}).join('')}
             </div>
-
             ${this.game.currentTown?.availableCrew.length > 0 ? `
                 <div class="hire-section">
                     <h3>可雇佣人员</h3>
@@ -762,10 +770,8 @@ class UI {
     renderOrders() {
         const content = document.getElementById('orders-content');
         if (!content) return;
-
         content.innerHTML = `
             <h2>📋 订单</h2>
-
             <div class="orders-section">
                 <h3>当前订单 (${this.game.activeOrders.length})</h3>
                 ${this.game.activeOrders.length === 0 ? '<p class="dim">暂无进行中的订单</p>' :
@@ -785,7 +791,6 @@ class UI {
                     `).join('')
                 }
             </div>
-
             ${this.game.currentTown ? `
                 <div class="orders-section">
                     <h3>可接取订单</h3>
@@ -820,10 +825,8 @@ class UI {
     renderAchievements() {
         const content = document.getElementById('achievements-content');
         if (!content) return;
-
         const progress = this.game.getAchievementProgress();
         const selectedCat = this._achievementCategory || 'all';
-
         content.innerHTML = `
             <div class="achievements-header">
                 <h2>🏆 成就系统</h2>
@@ -832,7 +835,6 @@ class UI {
                     <span class="achievement-progress-text">${progress.unlocked}/${progress.total} (${progress.pct}%)</span>
                 </div>
             </div>
-
             <div class="achievement-tabs">
                 <button class="ach-tab ${selectedCat === 'all' ? 'active' : ''}"
                         onclick="ui.selectAchievementCategory('all')">全部</button>
@@ -844,7 +846,6 @@ class UI {
                     </button>
                 `).join('')}
             </div>
-
             <div class="achievements-grid">
                 ${Object.entries(ACHIEVEMENTS)
                     .filter(([, a]) => selectedCat === 'all' || a.category === selectedCat)
@@ -857,9 +858,7 @@ class UI {
                                 <div class="ach-info">
                                     <div class="ach-name">${isHidden ? '???' : a.name}</div>
                                     <div class="ach-desc">${isHidden ? '达成特殊条件解锁' : a.desc}</div>
-                                    ${unlocked && a.reward ? `
-                                        <div class="ach-reward">奖励: ${this.getRewardText(a.reward)}</div>
-                                    ` : ''}
+                                    ${unlocked && a.reward ? `<div class="ach-reward">奖励: ${this.getRewardText(a.reward)}</div>` : ''}
                                 </div>
                                 ${unlocked ? '<div class="ach-check">✅</div>' : ''}
                             </div>
@@ -886,15 +885,12 @@ class UI {
 
     checkAndShowAchievementNotifications() {
         const pending = this.game.popPendingAchievements();
-        for (const ach of pending) {
-            this.showAchievementNotification(ach);
-        }
+        for (const ach of pending) this.showAchievementNotification(ach);
     }
 
     showAchievementNotification(achievement) {
         const container = document.getElementById('toast-container');
         if (!container) return;
-
         const toast = document.createElement('div');
         toast.className = 'toast toast-achievement';
         toast.innerHTML = `
@@ -906,7 +902,6 @@ class UI {
             </div>
         `;
         container.appendChild(toast);
-
         setTimeout(() => toast.classList.add('show'), 10);
         setTimeout(() => {
             toast.classList.add('hide');
@@ -918,7 +913,6 @@ class UI {
     showGameOver() {
         const content = document.getElementById('main-content');
         if (!content) return;
-
         content.innerHTML = `
             <div class="panel active" style="display:flex">
                 <div class="gameover-screen">
@@ -933,7 +927,7 @@ class UI {
                         <div>⏱️ 存活回合: ${this.game.turn}</div>
                         <div>🏆 解锁成就: ${Object.keys(this.game.achievements).length}/${Object.keys(ACHIEVEMENTS).length}</div>
                     </div>
-                    <button class="btn btn-accent btn-full" onclick="location.reload()">
+                    <button class="btn btn-accent btn-full" onclick="ui.game.deleteSave();location.reload()">
                         🔄 重新开始
                     </button>
                 </div>
@@ -944,7 +938,6 @@ class UI {
     showVictory() {
         const content = document.getElementById('main-content');
         if (!content) return;
-
         content.innerHTML = `
             <div class="panel active" style="display:flex">
                 <div class="victory-screen">
@@ -960,7 +953,7 @@ class UI {
                         <div>💰 最终资金: ${this.game.money}</div>
                         <div>🏆 解锁成就: ${Object.keys(this.game.achievements).length}/${Object.keys(ACHIEVEMENTS).length}</div>
                     </div>
-                    <button class="btn btn-accent btn-full" onclick="location.reload()">
+                    <button class="btn btn-accent btn-full" onclick="ui.game.deleteSave();location.reload()">
                         🔄 再来一局
                     </button>
                 </div>
@@ -973,13 +966,8 @@ class UI {
         if (this.selectedRoute < 0) return;
         const result = this.game.startTravel(this.selectedRoute);
         this.selectedRoute = -1;
-
         if (!result) return;
-        if (result.error) {
-            this.showToast(result.error, 'error');
-            return;
-        }
-
+        if (result.error) { this.showToast(result.error, 'error'); return; }
         this.handleTravelResult(result);
     }
 
@@ -993,13 +981,12 @@ class UI {
         switch (result.type) {
             case 'event':
                 this.pendingEvent = result.event;
+                this.pendingTactic = 0; // 重置战术
                 this.showPanel('event');
                 break;
             case 'arrive':
                 this.showPanel('town');
-                if (result.completedOrders?.length > 0) {
-                    this.showToast(`完成${result.completedOrders.length}个订单！`, 'success');
-                }
+                if (result.completedOrders?.length > 0) this.showToast(`完成${result.completedOrders.length}个订单！`, 'success');
                 break;
             case 'travel':
                 this.showPanel('travel');
@@ -1012,23 +999,19 @@ class UI {
 
     handleEventChoice(choiceIndex) {
         if (!this.pendingEvent) return;
-        const results = this.game.resolveEvent(this.pendingEvent.key, choiceIndex);
-
-        // 检查是否找到了零件
+        const results = this.game.resolveEvent(
+            this.pendingEvent.key,
+            choiceIndex,
+            this.pendingTactic // 传递战术
+        );
         const foundResult = results.find(r => r.foundMod);
-        if (foundResult) {
-            this.foundMod = foundResult.foundMod;
-        }
-
+        if (foundResult) this.foundMod = foundResult.foundMod;
         this.pendingEvent = null;
-
-        // 显示结果
         const content = document.getElementById('event-content');
         if (content) {
             const resultHtml = results.filter(r => r.message).map(r => `
                 <div class="event-result ${r.type}">${r.message}</div>
             `).join('');
-
             content.innerHTML = `
                 <div class="event-card">
                     <h2>结果</h2>
@@ -1042,56 +1025,32 @@ class UI {
     }
 
     continueAfterEvent() {
-        if (this.game.state === 'gameover') {
-            this.showGameOver();
-            return;
-        }
-        if (this.game.state === 'victory') {
-            this.showVictory();
-            return;
-        }
-
+        if (this.game.state === 'gameover') { this.showGameOver(); return; }
+        if (this.game.state === 'victory') { this.showVictory(); return; }
         if (this.game.travelProgress) {
-            // 还在旅途中，检查是否到达
             const tp = this.game.travelProgress;
             if (tp.currentSegment >= tp.totalSegments) {
                 const result = this.game.arriveAtTown(tp.targetId);
                 this.handleTravelResult(result);
-            } else {
-                this.showPanel('travel');
-            }
-        } else {
-            this.showPanel('town');
-        }
+            } else this.showPanel('travel');
+        } else this.showPanel('town');
     }
 
     handleBuy(goodKey, amount) {
         const result = this.game.buyGoods(goodKey, amount);
-        if (result.success) {
-            this.showToast(result.msg, 'success');
-        } else {
-            this.showToast(result.msg, 'error');
-        }
+        this.showToast(result.msg, result.success ? 'success' : 'error');
         this.refresh();
     }
 
     handleSell(goodKey, amount) {
         const result = this.game.sellGoods(goodKey, amount);
-        if (result.success) {
-            this.showToast(result.msg, 'success');
-        } else {
-            this.showToast(result.msg, 'error');
-        }
+        this.showToast(result.msg, result.success ? 'success' : 'error');
         this.refresh();
     }
 
     handleBuyMod(modKey) {
         const result = this.game.buyMod(modKey);
-        if (result.success) {
-            this.showToast(result.msg, 'success');
-        } else {
-            this.showToast(result.msg, 'error');
-        }
+        this.showToast(result.msg, result.success ? 'success' : 'error');
         this.refresh();
     }
 
@@ -1103,17 +1062,14 @@ class UI {
 
     handleInstallFoundMod() {
         if (!this.foundMod) return;
-        const mod = MODIFICATIONS[this.foundMod];
-        this.game.installMod(mod.type, this.foundMod);
+        this.game.installMod(MODIFICATIONS[this.foundMod].type, this.foundMod);
         this.foundMod = null;
         this.showToast('已安装拾取的零件', 'success');
         this.refresh();
     }
 
     handleAcceptOrder(orderId) {
-        if (this.game.acceptOrder(orderId)) {
-            this.showToast('订单已接取', 'success');
-        }
+        if (this.game.acceptOrder(orderId)) this.showToast('订单已接取', 'success');
         this.refresh();
     }
 
@@ -1148,9 +1104,7 @@ class UI {
     }
 
     handleFireCrew(memberId) {
-        if (this.game.fireCrew(memberId)) {
-            this.showToast('已解雇', 'success');
-        }
+        if (this.game.fireCrew(memberId)) this.showToast('已解雇', 'success');
         this.refresh();
     }
 
@@ -1158,12 +1112,10 @@ class UI {
     showToast(message, type = 'info') {
         const container = document.getElementById('toast-container');
         if (!container) return;
-
         const toast = document.createElement('div');
         toast.className = `toast toast-${type}`;
         toast.textContent = message;
         container.appendChild(toast);
-
         setTimeout(() => toast.classList.add('show'), 10);
         setTimeout(() => {
             toast.classList.add('hide');

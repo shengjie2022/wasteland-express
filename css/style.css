@@ -1453,3 +1453,94 @@ body {
     #route-panel { width: 100%; max-height: 250px; border-left: none; border-top: 1px solid var(--border); }
     .stats-grid { grid-template-columns: repeat(2, 1fr); }
 }
+
+
+/* ========== v2.0 新增样式 ========== */
+
+/* 存档菜单 */
+.save-load-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 24px;
+}
+
+/* 经验条 */
+.exp-bar .bar-fill {
+    background: linear-gradient(90deg, #f0c040, #ff9800) !important;
+}
+.bar-container.exp-bar {
+    margin-top: 4px;
+}
+
+/* 交易利润提示 */
+.last-buy {
+    display: block;
+    font-size: 10px;
+    color: #888;
+    margin-top: 2px;
+}
+.trade-profit {
+    display: inline-block;
+    font-size: 10px;
+    margin-left: 6px;
+    padding: 1px 4px;
+    border-radius: 3px;
+}
+.trade-profit.profit {
+    color: #4caf50;
+    background: rgba(76, 175, 80, 0.15);
+}
+.trade-profit.loss {
+    color: #f44336;
+    background: rgba(244, 67, 54, 0.15);
+}
+
+/* 战术选择 */
+.tactic-info {
+    background: rgba(0,0,0,0.3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 12px;
+}
+.tactic-info h4 {
+    margin: 0 0 8px 0;
+    color: var(--text);
+}
+.tactic-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.tactic-btn {
+    background: rgba(255,255,255,0.05) !important;
+    border: 1px solid var(--border) !important;
+    text-align: left !important;
+    padding: 8px 12px !important;
+}
+.tactic-btn:hover {
+    background: rgba(255,255,255,0.1) !important;
+}
+.tactic-btn.active {
+    border-color: var(--accent) !important;
+    background: rgba(255,193,7,0.15) !important;
+}
+.tactic-name {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 2px;
+}
+.tactic-desc {
+    display: block;
+    font-size: 11px;
+    color: var(--text-dim);
+}
+
+/* 路线事件预览 */
+.route-events {
+    margin-top: 4px;
+    font-size: 11px;
+}
+
+/* 存档按钮 */
