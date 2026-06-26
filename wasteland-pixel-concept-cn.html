@@ -23,59 +23,14 @@
     box-shadow: 0 0 30px rgba(212,160,32,0.15), inset 0 0 60px rgba(0,0,0,0.5);
     max-width: 100vw;
   }
-  .title {
-    color: #d4a020;
-    font-size: 20px;
-    letter-spacing: 10px;
-    text-shadow: 0 0 16px rgba(212,160,32,0.8), 0 0 40px rgba(212,160,32,0.3);
-    animation: flicker 4s ease-in-out infinite;
-    font-weight: bold;
-  }
-  .subtitle {
-    color: #7a7050;
-    font-size: 10px;
-    letter-spacing: 4px;
-  }
-  .tagline {
-    color: #5a5530;
-    font-size: 9px;
-    letter-spacing: 2px;
-  }
-  @keyframes flicker {
-    0%,100% { opacity: 1; }
-    91% { opacity: 1; }
-    92% { opacity: 0.6; }
-    93% { opacity: 1; }
-    96% { opacity: 0.75; }
-    97% { opacity: 1; }
-  }
-  .screens {
-    display: flex;
-    gap: 12px;
-    flex-wrap: wrap;
-    justify-content: center;
-  }
-  .screen-label {
-    color: #7a7050;
-    font-size: 9px;
-    text-align: center;
-    letter-spacing: 3px;
-    margin-bottom: 3px;
-  }
-  .badge {
-    background: #1a1a0e;
-    border: 1px solid #3a3a2a;
-    padding: 2px 8px;
-    font-size: 8px;
-    color: #5a5530;
-    letter-spacing: 2px;
-  }
-  .footer {
-    color: #3a3820;
-    font-size: 9px;
-    text-align: center;
-    letter-spacing: 1px;
-  }
+  .title { color: #d4a020; font-size: 20px; letter-spacing: 10px; text-shadow: 0 0 16px rgba(212,160,32,0.8); animation: flicker 4s ease-in-out infinite; font-weight: bold; }
+  .subtitle { color: #7a7050; font-size: 10px; letter-spacing: 4px; }
+  .tagline { color: #5a5530; font-size: 9px; letter-spacing: 2px; }
+  @keyframes flicker { 0%,100% { opacity: 1; } 91% { opacity: 1; } 92% { opacity: 0.6; } 93% { opacity: 1; } 96% { opacity: 0.75; } 97% { opacity: 1; } }
+  .screens { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+  .screen-label { color: #7a7050; font-size: 9px; text-align: center; letter-spacing: 3px; margin-bottom: 3px; }
+  .badge { background: #1a1a0e; border: 1px solid #3a3a2a; padding: 2px 8px; font-size: 8px; color: #5a5530; letter-spacing: 2px; }
+  .footer { color: #3a3820; font-size: 9px; text-align: center; letter-spacing: 1px; }
 </style>
 </head>
 <body>
@@ -112,70 +67,27 @@
 // ============================================================
 // 废土快递 · 像素风概念 v2 · 全中文版
 // 风格参考: 肯尼 CC0 素材 + 时间当铺终端美学
-// 所有精灵用程序化 Canvas 绘制，匹配肯尼 16px 基准
 // ============================================================
 
-const PALETTE = {
-  BG:        '#08080a',
-  BG2:       '#111108',
-  BG3:       '#1a1a0e',
-  BORDER:    '#2a2a1a',
-  BORDER_HI: '#3a3a2a',
-  TEXT:      '#d4c8a0',
-  TEXT_DIM:  '#7a7050',
-  TEXT_DARK: '#4a4830',
-  ACCENT:    '#d4a020',
-  ACCENT_HI: '#f0c040',
-  ACCENT_LO: '#a07010',
-  DANGER:    '#cc4422',
-  DANGER_HI: '#ff6644',
-  SUCCESS:   '#44aa44',
-  SUCCESS_HI:'#66cc66',
-  RADIATION: '#44ff44',
-  WHITE:     '#f0e8c0',
-  OLDBRONZE: '#c4a050',
-
-  // 派系
-  F_SALVAGE:  '#ffaa00',
-  F_ASH:      '#888888',
-  F_RUST:     '#cc3333',
-  F_IRON:     '#44aa44',
-  F_PURE:     '#88cc44',
-  F_ZERO:     '#44ff88',
-
-  // 地形/天空
-  SKY:        '#1a1520',
-  GROUND:     '#2a2218',
-  DIRT:       '#3a3020',
-  ROCK:       '#4a4030',
-  SAND:       '#5a5040',
-
-  // 货车
-  TRUCK_BODY: '#5a5040',
-  TRUCK_CAB:  '#6a6050',
-  TRUCK_DARK: '#3a3028',
-  TRUCK_ACC:  '#8a7a60',
-  WHEEL:      '#1a1a1a',
-  WHEEL_RIM:  '#444444',
-  GLASS:      '#3a4a5a',
-  GLASS_HI:   '#5a7a9a',
-  RUST:       '#8a4422',
-  METAL:      '#7a7a6a',
-
-  // 强盗
-  SKIN:       '#c4a070',
-  HAIR:       '#2a1a0a',
-  CLOTH:      '#5a3020',
-  CLOTH_DARK: '#3a2010',
-  BANDANA:    '#cc2200',
-  WEAPON:     '#888888',
-  WEAPON_HI:  '#aaaaaa',
+var PALETTE = {
+  BG:'#08080a', BG2:'#111108', BG3:'#1a1a0e', BORDER:'#2a2a1a',
+  TEXT:'#d4c8a0', TEXT_DIM:'#7a7050', TEXT_DARK:'#4a4830',
+  ACCENT:'#d4a020', ACCENT_HI:'#f0c040', ACCENT_LO:'#a07010',
+  DANGER:'#cc4422', DANGER_HI:'#ff6644', SUCCESS:'#44aa44', SUCCESS_HI:'#66cc66',
+  RADIATION:'#44ff44', WHITE:'#f0e8c0', OLDBRONZE:'#c4a050',
+  F_SALVAGE:'#ffaa00', F_ASH:'#888888', F_RUST:'#cc3333',
+  F_IRON:'#44aa44', F_PURE:'#88cc44', F_ZERO:'#44ff88',
+  SKY:'#1a1520', GROUND:'#2a2218', DIRT:'#3a3020', ROCK:'#4a4030', SAND:'#5a5040',
+  TRUCK_BODY:'#7a6a55', TRUCK_CAB:'#8a7a65', TRUCK_DARK:'#4a4038',
+  TRUCK_ACC:'#9a8a70', WHEEL:'#1a1a1a', WHEEL_RIM:'#555555',
+  GLASS:'#3a4a5a', GLASS_HI:'#5a7a9a', RUST:'#8a4422', METAL:'#7a7a6a',
+  SKIN:'#c4a070', HAIR:'#2a1a0a', CLOTH:'#5a3020', CLOTH_DARK:'#3a2010',
+  BANDANA:'#cc2200', WEAPON:'#888888', WEAPON_HI:'#aaaaaa'
 };
 
 // 像素字体（5x7 bitmap）
-const FONT = {};
-const CHARS = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ :!.,/()[]<>+-~#%@?=_\'"\u3002\uff1a\uff0c\uff1f\uff01\u3001\u2014\u2018\u201c\u201d';
-const FONT_DATA = {
+var FONT = {};
+var FONT_DATA = {
   '0':[[1,1,1],[1,0,1],[1,0,1],[1,0,1],[1,1,1],[0,0,0],[0,1,0]],
   '1':[[0,1,0],[1,1,0],[0,1,0],[0,1,0],[0,1,0],[0,0,0],[1,1,1]],
   '2':[[1,1,1],[0,0,1],[0,0,1],[0,1,1],[1,1,0],[0,0,0],[1,1,1]],
@@ -222,8 +134,6 @@ const FONT_DATA = {
   ')':[[0,1,0],[0,0,1],[0,0,1],[0,0,1],[0,0,1],[0,0,0],[0,1,0]],
   '[':[[1,1,0],[1,0,0],[1,0,0],[1,0,0],[1,0,0],[0,0,0],[1,1,0]],
   ']':[[0,1,1],[0,0,1],[0,0,1],[0,0,1],[0,0,1],[0,0,0],[0,1,1]],
-  '<':[[0,0,1],[0,1,0],[1,0,0],[0,0,0],[0,0,0],[0,0,0],[0,0,0]],
-  '>':[[1,0,0],[0,1,0],[0,0,1],[0,0,0],[0,0,0],[0,0,0],[0,0,0]],
   '-':[[0,0,0],[0,0,0],[0,0,0],[1,1,1],[0,0,0],[0,0,0],[0,0,0]],
   '+':[[0,0,0],[0,1,0],[1,1,1],[0,1,0],[0,0,0],[0,0,0],[0,0,0]],
   '#':[[1,0,1],[1,1,1],[0,1,0],[0,1,0],[1,1,1],[0,0,0],[1,0,1]],
@@ -234,81 +144,46 @@ const FONT_DATA = {
   '\'':[[0,1,0],[1,0,0],[0,0,0],[0,0,0],[0,0,0],[0,0,0],[0,0,0]],
   '"':[[1,0,1],[1,0,1],[0,0,0],[0,0,0],[0,0,0],[0,0,0],[0,0,0]],
   '_':[[0,0,0],[0,0,0],[0,0,0],[0,0,0],[0,0,0],[0,0,0],[1,1,1]],
-  '~':[[0,0,0],[0,0,0],[1,0,1],[0,1,0],[1,0,0],[0,0,0],[0,0,0]],
-  '\u3002':[[0,0,0],[0,0,0],[0,0,0],[0,0,0],[0,0,0],[0,0,0],[0,1,0]],
-  '\uff1a':[[0,0,0],[0,1,0],[0,0,0],[0,0,0],[0,1,0],[0,0,0],[0,0,0]],
-  '\uff0c':[[0,0,0],[0,0,0],[0,0,0],[0,0,0],[0,0,0],[0,0,0],[0,1,0],[0,1,0]],
-  '\uff1f':[[0,1,0],[1,0,1],[0,0,1],[0,1,0],[0,1,0],[0,0,0],[0,1,0]],
-  '\uff01':[[0,1,0],[0,1,0],[0,1,0],[0,1,0],[0,0,0],[0,0,0],[0,1,0]],
-  '\u3001':[[0,0,0],[0,0,0],[0,0,0],[0,0,0],[0,0,0],[0,0,0],[0,1,0],[0,1,0]],
-  '\u2014':[[0,0,0],[0,0,0],[0,0,0],[1,1,1],[0,0,0],[0,0,0],[0,0,0]],
-  '\u2018':[[0,1,0],[1,0,0],[0,0,0],[0,0,0],[0,0,0],[0,0,0],[0,0,0]],
-  '\u201c':[[1,0,1],[1,0,1],[0,0,0],[0,0,0],[0,0,0],[0,0,0],[0,0,0]],
-  '\u201d':[[0,0,1],[0,0,1],[1,0,0],[0,0,0],[0,0,0],[0,0,0],[0,0,0]],
+  '~':[[0,0,0],[0,0,0],[1,0,1],[0,1,0],[1,0,0],[0,0,0],[0,0,0]]
 };
-CHARS.split('').forEach((c, i) => { if (FONT_DATA[c]) FONT[c] = FONT_DATA[c]; });
+for (var k in FONT_DATA) FONT[k] = FONT_DATA[k];
 
-// 检测文本是否含有像素字体不支持的字符（含中文字符）
-// Canvas 原生文字渲染（统一方案，保证中文在所有平台上可靠显示）
+// Canvas 原生文字渲染（中文友好）
 function pxTextNative(ctx, text, x, y, scale, color) {
   ctx.save();
   try {
-    // 最小 11px，保证 Windows 上中文字体能显示
-    const fontSize = Math.max(11, Math.round(8 * scale));
+    var fontSize = Math.max(11, Math.round(8 * scale));
     ctx.fillStyle = color;
-    ctx.font = `${fontSize}px 'Microsoft YaHei', 'SimHei', monospace`;
+    ctx.font = fontSize + "px 'Microsoft YaHei', 'SimHei', sans-serif";
     ctx.textBaseline = 'alphabetic';
     ctx.textAlign = 'left';
     ctx.fillText(text, Math.floor(x), Math.floor(y) + Math.round(6 * scale));
-  } finally {
-    ctx.restore();
-  }
-  // 估算宽度：ASCII≈6px/字符，中文≈14px/字符
-  let w = 0;
-  for (const ch of text) {
-    w += (FONT[ch.toUpperCase()] ? 6 : 14) * scale;
+  } finally { ctx.restore(); }
+  var w = 0;
+  for (var i = 0; i < text.length; i++) {
+    var ch = text.charAt(i);
+    w += (FONT[ch.toUpperCase()] ? 6 : 13) * scale;
   }
   return x + w;
 }
 
-function pxText(ctx, text, x, y, scale = 1, color = PALETTE.TEXT) {
+function pxText(ctx, text, x, y, scale, color) {
   if (!text) return x;
-  return pxTextNative(ctx, text, x, y, scale, color);
+  return pxTextNative(ctx, text, x, y, scale || 1, color || PALETTE.TEXT);
 }
 
-function pxTextCenter(ctx, text, x, y, scale = 1, color = PALETTE.TEXT) {
+function pxTextCenter(ctx, text, x, y, scale, color) {
   if (!text) return x;
   ctx.save();
   try {
-    const fontSize = Math.max(11, Math.round(8 * scale));
-    ctx.fillStyle = color;
-    ctx.font = `${fontSize}px 'Microsoft YaHei', 'SimHei', monospace`;
+    var fontSize = Math.max(11, Math.round(8 * (scale || 1)));
+    ctx.fillStyle = color || PALETTE.TEXT;
+    ctx.font = fontSize + "px 'Microsoft YaHei', 'SimHei', sans-serif";
     ctx.textBaseline = 'alphabetic';
-    const w = ctx.measureText(text).width;
-    ctx.fillText(text, x - w / 2, Math.floor(y) + Math.round(6 * scale));
-  } finally {
-    ctx.restore();
-  }
+    var w = ctx.measureText(text).width;
+    ctx.fillText(text, x - w / 2, Math.floor(y) + Math.round(6 * (scale || 1)));
+  } finally { ctx.restore(); }
   return x;
-}
-
-function pxTextWrap(ctx, text, x, y, maxW, scale, color) {
-  const lines = [], words = text.split(' ');
-  let line = '';
-  for (const w of words) {
-    const test = line ? line + ' ' + w : w;
-    let tw = 0;
-    for (const ch of test.toUpperCase()) {
-      const g = FONT[ch] || FONT[' '];
-      tw += (g[0].length + 1) * scale;
-    }
-    if (tw > maxW && line) { lines.push(line); line = w; }
-    else line = test;
-  }
-  if (line) lines.push(line);
-  let cy = y;
-  for (const l of lines) { pxText(ctx, l, x, cy, scale, color); cy += 8 * scale; }
-  return cy;
 }
 
 function fill(ctx, x, y, w, h, color) {
@@ -316,24 +191,21 @@ function fill(ctx, x, y, w, h, color) {
   ctx.fillRect(Math.floor(x), Math.floor(y), Math.floor(w), Math.floor(h));
 }
 
-function rect(ctx, x, y, w, h, color) {
-  ctx.fillStyle = color;
-  ctx.fillRect(Math.floor(x), Math.floor(y), Math.floor(w), Math.floor(h));
-}
-
-function border(ctx, x, y, w, h, color = PALETTE.BORDER, lineW = 1) {
+function border(ctx, x, y, w, h, color, lineW) {
+  if (lineW === undefined) lineW = 1;
   ctx.strokeStyle = color;
   ctx.lineWidth = lineW;
   ctx.strokeRect(Math.floor(x) + 0.5, Math.floor(y) + 0.5, Math.floor(w) - 1, Math.floor(h) - 1);
 }
 
-function crtLines(ctx, W, H, alpha = 0.07) {
-  ctx.fillStyle = `rgba(0,0,0,${alpha})`;
-  for (let sy = 0; sy < H; sy += 2) ctx.fillRect(0, sy, W, 1);
+function crtLines(ctx, W, H, alpha) {
+  if (alpha === undefined) alpha = 0.07;
+  ctx.fillStyle = 'rgba(0,0,0,' + alpha + ')';
+  for (var sy = 0; sy < H; sy += 2) ctx.fillRect(0, sy, W, 1);
 }
 
 function vignette(ctx, W, H) {
-  const g = ctx.createRadialGradient(W/2, H/2, H*0.3, W/2, H/2, H*0.8);
+  var g = ctx.createRadialGradient(W/2, H/2, H*0.3, W/2, H/2, H*0.8);
   g.addColorStop(0, 'rgba(0,0,0,0)');
   g.addColorStop(1, 'rgba(0,0,0,0.45)');
   ctx.fillStyle = g;
@@ -344,484 +216,321 @@ function vignette(ctx, W, H) {
 // 精灵绘制函数
 // ============================================================
 
-// 废土货车 (64x32 基准, 缩放 2x = 128x64 在场景中)
-function drawTruck(ctx, ox, oy, scale = 1, facingRight = true, damaged = false) {
-  const s = scale;
-  const d = facingRight ? 1 : -1;
-  const fx = facingRight ? ox : ox;
-
-  // 阴影
-  fill(ctx, fx + 2*s, oy + 26*s, 52*s, 4*s, 'rgba(0,0,0,0.4)');
-
-  // 轮胎 x2
-  fill(ctx, fx + 4*s,  oy + 18*s, 10*s, 10*s, PALETTE.WHEEL);
-  fill(ctx, fx + 5*s,  oy + 19*s, 8*s,  8*s,  '#2a2a2a');
-  fill(ctx, fx + 7*s,  oy + 21*s, 4*s,  4*s,  PALETTE.WHEEL_RIM);
-  fill(ctx, fx + 38*s, oy + 18*s, 10*s, 10*s, PALETTE.WHEEL);
-  fill(ctx, fx + 39*s, oy + 19*s, 8*s,  8*s,  '#2a2a2a');
-  fill(ctx, fx + 41*s, oy + 21*s, 4*s,  4*s,  PALETTE.WHEEL_RIM);
-
-  // 车厢主体
-  fill(ctx, fx + 10*s, oy + 4*s,  36*s, 18*s, PALETTE.TRUCK_BODY);
-  fill(ctx, fx + 11*s, oy + 5*s,  34*s, 16*s, PALETTE.TRUCK_ACC);
-  // 车厢顶部加强筋
-  fill(ctx, fx + 14*s, oy + 3*s,  28*s, 2*s,  PALETTE.TRUCK_DARK);
-  // 车厢侧面铁皮纹理
-  for (let i = 0; i < 5; i++) {
-    fill(ctx, fx + 13*s + i*7*s, oy + 6*s, 5*s, 14*s, PALETTE.TRUCK_BODY);
-  }
-  // 侧门
-  fill(ctx, fx + 18*s, oy + 8*s,  12*s, 10*s, PALETTE.TRUCK_DARK);
-  fill(ctx, fx + 28*s, oy + 8*s,  14*s, 10*s, PALETTE.TRUCK_DARK);
-  // 门把手
-  fill(ctx, fx + 27*s, oy + 12*s, 2*s,  2*s,  PALETTE.WHEEL_RIM);
-  // 车厢后部
-  fill(ctx, fx + 46*s, oy + 6*s,  2*s,  14*s, PALETTE.TRUCK_DARK);
-
-  // 改装件 / 货舱门
-  fill(ctx, fx + 12*s, oy + 5*s,  32*s, 2*s,  damaged ? PALETTE.RUST : PALETTE.METAL);
-  fill(ctx, fx + 20*s, oy + 10*s, 4*s,  4*s,  PALETTE.ACCENT);
-  fill(ctx, fx + 28*s, oy + 10*s, 4*s,  4*s,  PALETTE.DANGER);
-  fill(ctx, fx + 36*s, oy + 10*s, 4*s,  4*s,  PALETTE.SUCCESS);
-
-  // 驾驶舱
-  fill(ctx, fx + 0*s,  oy + 8*s,  12*s, 12*s, PALETTE.TRUCK_CAB);
-  fill(ctx, fx + 1*s,  oy + 9*s,  10*s, 10*s, PALETTE.TRUCK_BODY);
-  // 挡风玻璃
-  fill(ctx, fx + 2*s,  oy + 9*s,  8*s,  6*s,  PALETTE.GLASS);
-  fill(ctx, fx + 2*s,  oy + 9*s,  8*s,  2*s,  PALETTE.GLASS_HI);
-  // 驾驶舱顶部
-  fill(ctx, fx + 0*s,  oy + 6*s,  14*s, 3*s,  PALETTE.TRUCK_CAB);
-  fill(ctx, fx + 1*s,  oy + 5*s,  12*s, 2*s,  PALETTE.TRUCK_ACC);
-
-  // 前灯
-  fill(ctx, fx + 0*s,  oy + 16*s, 3*s,  3*s,  PALETTE.ACCENT_HI);
-  fill(ctx, fx + 1*s,  oy + 17*s, 1*s,  1*s,  PALETTE.WHITE);
-
-  // 排气管
-  fill(ctx, fx + 10*s, oy + 18*s, 3*s,  4*s,  PALETTE.WHEEL_RIM);
-  fill(ctx, fx + 10*s, oy + 16*s, 2*s,  2*s,  '#555');
-
-  // 底盘
-  fill(ctx, fx + 4*s,  oy + 18*s, 44*s, 3*s,  PALETTE.TRUCK_DARK);
-
-  // 损坏效果
+function drawTruck(ctx, ox, oy, scale, facingRight, damaged) {
+  scale = scale || 1; facingRight = (facingRight !== false);
+  var s = scale;
+  fill(ctx, ox+2*s, oy+26*s, 52*s, 4*s, 'rgba(0,0,0,0.4)');
+  fill(ctx, ox+4*s, oy+18*s, 10*s, 10*s, PALETTE.WHEEL);
+  fill(ctx, ox+5*s, oy+19*s, 8*s, 8*s, '#2a2a2a');
+  fill(ctx, ox+7*s, oy+21*s, 4*s, 4*s, PALETTE.WHEEL_RIM);
+  fill(ctx, ox+38*s, oy+18*s, 10*s, 10*s, PALETTE.WHEEL);
+  fill(ctx, ox+39*s, oy+19*s, 8*s, 8*s, '#2a2a2a');
+  fill(ctx, ox+41*s, oy+21*s, 4*s, 4*s, PALETTE.WHEEL_RIM);
+  fill(ctx, ox+10*s, oy+4*s, 36*s, 18*s, PALETTE.TRUCK_BODY);
+  fill(ctx, ox+11*s, oy+5*s, 34*s, 16*s, PALETTE.TRUCK_ACC);
+  fill(ctx, ox+14*s, oy+3*s, 28*s, 2*s, PALETTE.TRUCK_DARK);
+  for (var i = 0; i < 5; i++) fill(ctx, ox+13*s+i*7*s, oy+6*s, 5*s, 14*s, PALETTE.TRUCK_BODY);
+  fill(ctx, ox+18*s, oy+8*s, 12*s, 10*s, PALETTE.TRUCK_DARK);
+  fill(ctx, ox+28*s, oy+8*s, 14*s, 10*s, PALETTE.TRUCK_DARK);
+  fill(ctx, ox+27*s, oy+12*s, 2*s, 2*s, PALETTE.WHEEL_RIM);
+  fill(ctx, ox+46*s, oy+6*s, 2*s, 14*s, PALETTE.TRUCK_DARK);
+  fill(ctx, ox+12*s, oy+5*s, 32*s, 2*s, damaged ? PALETTE.RUST : PALETTE.METAL);
+  fill(ctx, ox+20*s, oy+10*s, 4*s, 4*s, PALETTE.ACCENT);
+  fill(ctx, ox+28*s, oy+10*s, 4*s, 4*s, PALETTE.DANGER);
+  fill(ctx, ox+36*s, oy+10*s, 4*s, 4*s, PALETTE.SUCCESS);
+  fill(ctx, ox+0*s, oy+8*s, 12*s, 12*s, PALETTE.TRUCK_CAB);
+  fill(ctx, ox+1*s, oy+9*s, 10*s, 10*s, PALETTE.TRUCK_BODY);
+  fill(ctx, ox+2*s, oy+9*s, 8*s, 6*s, PALETTE.GLASS);
+  fill(ctx, ox+2*s, oy+9*s, 8*s, 2*s, PALETTE.GLASS_HI);
+  fill(ctx, ox+0*s, oy+6*s, 14*s, 3*s, PALETTE.TRUCK_CAB);
+  fill(ctx, ox+1*s, oy+5*s, 12*s, 2*s, PALETTE.TRUCK_ACC);
+  fill(ctx, ox+0*s, oy+16*s, 3*s, 3*s, PALETTE.ACCENT_HI);
+  fill(ctx, ox+1*s, oy+17*s, 1*s, 1*s, PALETTE.WHITE);
+  fill(ctx, ox+10*s, oy+18*s, 3*s, 4*s, PALETTE.WHEEL_RIM);
+  fill(ctx, ox+10*s, oy+16*s, 2*s, 2*s, '#555');
+  fill(ctx, ox+4*s, oy+18*s, 44*s, 3*s, PALETTE.TRUCK_DARK);
   if (damaged) {
-    fill(ctx, fx + 20*s, oy + 8*s,  3*s,  3*s,  PALETTE.RUST);
-    fill(ctx, fx + 35*s, oy + 12*s, 2*s,  4*s,  PALETTE.RUST);
-    fill(ctx, fx + 12*s, oy + 14*s, 4*s,  2*s,  PALETTE.RUST);
+    fill(ctx, ox+20*s, oy+8*s, 3*s, 3*s, PALETTE.RUST);
+    fill(ctx, ox+35*s, oy+12*s, 2*s, 4*s, PALETTE.RUST);
+    fill(ctx, ox+12*s, oy+14*s, 4*s, 2*s, PALETTE.RUST);
   }
-
-  // 保险杠
-  fill(ctx, fx + 0*s,  oy + 19*s, 50*s, 2*s,  PALETTE.METAL);
+  fill(ctx, ox+0*s, oy+19*s, 50*s, 2*s, PALETTE.METAL);
 }
 
-// 强盗角色 (16x32, scale=2)
-function drawBandit(ctx, ox, oy, scale = 2, frame = 0, facingRight = true) {
-  const s = scale;
-  const bob = Math.sin(frame * 0.3) * s;
-  const legAnim = frame % 2;
-  const fx = facingRight ? ox : ox;
-  const flip = facingRight ? 1 : -1;
-
-  // 阴影
-  fill(ctx, fx + 4*s, oy + 30*s, 10*s, 3*s, 'rgba(0,0,0,0.35)');
-
-  // 腿部
-  fill(ctx, fx + 5*s,  oy + 22*s + bob, 4*s, 8*s, PALETTE.CLOTH_DARK);
-  fill(ctx, fx + 9*s,  oy + 22*s + bob, 4*s, 8*s, PALETTE.CLOTH_DARK);
+function drawBandit(ctx, ox, oy, scale, frame, facingRight) {
+  scale = scale || 2; frame = frame || 0; facingRight = (facingRight !== false);
+  var s = scale;
+  var bob = Math.sin(frame * 0.3) * s;
+  var legAnim = frame % 2;
+  fill(ctx, ox+4*s, oy+30*s, 10*s, 3*s, 'rgba(0,0,0,0.35)');
+  fill(ctx, ox+5*s, oy+22*s+bob, 4*s, 8*s, PALETTE.CLOTH_DARK);
+  fill(ctx, ox+9*s, oy+22*s+bob, 4*s, 8*s, PALETTE.CLOTH_DARK);
   if (legAnim) {
-    fill(ctx, fx + 4*s,  oy + 24*s + bob, 3*s, 6*s, PALETTE.CLOTH_DARK);
-    fill(ctx, fx + 11*s, oy + 22*s + bob, 3*s, 6*s, PALETTE.CLOTH_DARK);
+    fill(ctx, ox+4*s, oy+24*s+bob, 3*s, 6*s, PALETTE.CLOTH_DARK);
+    fill(ctx, ox+11*s, oy+22*s+bob, 3*s, 6*s, PALETTE.CLOTH_DARK);
   }
-
-  // 靴子
-  fill(ctx, fx + 4*s,  oy + 28*s + bob, 5*s, 3*s, '#3a2a1a');
-  fill(ctx, fx + 9*s,  oy + 28*s + bob, 5*s, 3*s, '#3a2a1a');
-
-  // 身体/外套
-  fill(ctx, fx + 4*s,  oy + 12*s + bob, 10*s, 11*s, PALETTE.CLOTH);
-  fill(ctx, fx + 5*s,  oy + 13*s + bob, 8*s,  9*s,  PALETTE.CLOTH_DARK);
-  // 外套细节
-  fill(ctx, fx + 6*s,  oy + 14*s + bob, 2*s,  7*s,  PALETTE.CLOTH);
-  fill(ctx, fx + 10*s, oy + 14*s + bob, 2*s,  7*s,  PALETTE.CLOTH);
-  // 腰带
-  fill(ctx, fx + 4*s,  oy + 20*s + bob, 10*s, 2*s,  '#4a3a2a');
-
-  // 手臂
-  const armSwing = Math.sin(frame * 0.5) * 2*s;
-  fill(ctx, fx + 2*s,  oy + 13*s + bob, 3*s, 8*s, PALETTE.CLOTH);
-  fill(ctx, fx + 13*s, oy + 13*s + bob + armSwing, 3*s, 8*s, PALETTE.CLOTH);
-  // 手
-  fill(ctx, fx + 2*s,  oy + 20*s + bob, 3*s, 3*s, PALETTE.SKIN);
-  fill(ctx, fx + 13*s, oy + 20*s + bob + armSwing, 3*s, 3*s, PALETTE.SKIN);
-
-  // 武器 (砍刀)
-  fill(ctx, fx + 15*s, oy + 14*s + bob + armSwing, 8*s, 2*s, PALETTE.WEAPON);
-  fill(ctx, fx + 22*s, oy + 13*s + bob + armSwing, 2*s, 4*s, PALETTE.WEAPON_HI);
-  fill(ctx, fx + 14*s, oy + 15*s + bob + armSwing, 2*s, 2*s, '#6a4a2a');
-
-  // 头
-  fill(ctx, fx + 5*s,  oy + 2*s + bob, 8*s,  10*s, PALETTE.SKIN);
-  fill(ctx, fx + 6*s,  oy + 3*s + bob, 6*s,  8*s,  '#b09060');
-
-  // 头发
-  fill(ctx, fx + 4*s,  oy + 1*s + bob, 10*s, 4*s,  PALETTE.HAIR);
-  fill(ctx, fx + 4*s,  oy + 3*s + bob, 2*s,  3*s,  PALETTE.HAIR);
-  fill(ctx, fx + 12*s, oy + 3*s + bob, 2*s,  3*s,  PALETTE.HAIR);
-
-  // 头巾
-  fill(ctx, fx + 4*s,  oy + 4*s + bob, 12*s, 3*s,  PALETTE.BANDANA);
-  fill(ctx, fx + 3*s,  oy + 5*s + bob, 3*s,  2*s,  PALETTE.BANDANA);
-  // 头巾结
-  fill(ctx, fx + 14*s, oy + 3*s + bob, 4*s,  2*s,  PALETTE.BANDANA);
-  fill(ctx, fx + 16*s, oy + 5*s + bob, 2*s,  4*s,  PALETTE.BANDANA);
-
-  // 眼睛
-  fill(ctx, fx + 6*s,  oy + 6*s + bob, 2*s,  2*s,  '#000');
-  fill(ctx, fx + 10*s, oy + 6*s + bob, 2*s,  2*s,  '#000');
-  fill(ctx, fx + 6*s,  oy + 6*s + bob, 2*s,  1*s,  PALETTE.DANGER);
-  fill(ctx, fx + 10*s, oy + 6*s + bob, 2*s,  1*s,  PALETTE.DANGER);
-
-  // 口罩
-  fill(ctx, fx + 5*s,  oy + 9*s + bob, 8*s,  3*s,  '#4a3020');
+  fill(ctx, ox+4*s, oy+28*s+bob, 5*s, 3*s, '#3a2a1a');
+  fill(ctx, ox+9*s, oy+28*s+bob, 5*s, 3*s, '#3a2a1a');
+  fill(ctx, ox+4*s, oy+12*s+bob, 10*s, 11*s, PALETTE.CLOTH);
+  fill(ctx, ox+5*s, oy+13*s+bob, 8*s, 9*s, PALETTE.CLOTH_DARK);
+  fill(ctx, ox+6*s, oy+14*s+bob, 2*s, 7*s, PALETTE.CLOTH);
+  fill(ctx, ox+10*s, oy+14*s+bob, 2*s, 7*s, PALETTE.CLOTH);
+  fill(ctx, ox+4*s, oy+20*s+bob, 10*s, 2*s, '#4a3a2a');
+  var armSwing = Math.sin(frame * 0.5) * 2*s;
+  fill(ctx, ox+2*s, oy+13*s+bob, 3*s, 8*s, PALETTE.CLOTH);
+  fill(ctx, ox+13*s, oy+13*s+bob+armSwing, 3*s, 8*s, PALETTE.CLOTH);
+  fill(ctx, ox+2*s, oy+20*s+bob, 3*s, 3*s, PALETTE.SKIN);
+  fill(ctx, ox+13*s, oy+20*s+bob+armSwing, 3*s, 3*s, PALETTE.SKIN);
+  fill(ctx, ox+15*s, oy+14*s+bob+armSwing, 8*s, 2*s, PALETTE.WEAPON);
+  fill(ctx, ox+22*s, oy+13*s+bob+armSwing, 2*s, 4*s, PALETTE.WEAPON_HI);
+  fill(ctx, ox+14*s, oy+15*s+bob+armSwing, 2*s, 2*s, '#6a4a2a');
+  fill(ctx, ox+5*s, oy+2*s+bob, 8*s, 10*s, PALETTE.SKIN);
+  fill(ctx, ox+6*s, oy+3*s+bob, 6*s, 8*s, '#b09060');
+  fill(ctx, ox+4*s, oy+1*s+bob, 10*s, 4*s, PALETTE.HAIR);
+  fill(ctx, ox+4*s, oy+3*s+bob, 2*s, 3*s, PALETTE.HAIR);
+  fill(ctx, ox+12*s, oy+3*s+bob, 2*s, 3*s, PALETTE.HAIR);
+  fill(ctx, ox+4*s, oy+4*s+bob, 12*s, 3*s, PALETTE.BANDANA);
+  fill(ctx, ox+3*s, oy+5*s+bob, 3*s, 2*s, PALETTE.BANDANA);
+  fill(ctx, ox+14*s, oy+3*s+bob, 4*s, 2*s, PALETTE.BANDANA);
+  fill(ctx, ox+16*s, oy+5*s+bob, 2*s, 4*s, PALETTE.BANDANA);
+  fill(ctx, ox+6*s, oy+6*s+bob, 2*s, 2*s, '#000');
+  fill(ctx, ox+10*s, oy+6*s+bob, 2*s, 2*s, '#000');
+  fill(ctx, ox+6*s, oy+6*s+bob, 2*s, 1*s, PALETTE.DANGER);
+  fill(ctx, ox+10*s, oy+6*s+bob, 2*s, 1*s, PALETTE.DANGER);
+  fill(ctx, ox+5*s, oy+9*s+bob, 8*s, 3*s, '#4a3020');
 }
 
-// 商人 NPC (类似格式)
-function drawMerchant(ctx, ox, oy, scale = 2, frame = 0, facingRight = true) {
-  const s = scale;
-  const bob = Math.sin(frame * 0.2) * s;
-  const fx = facingRight ? ox : ox;
-
-  // 阴影
-  fill(ctx, fx + 4*s, oy + 30*s, 10*s, 3*s, 'rgba(0,0,0,0.3)');
-
-  // 腿
-  fill(ctx, fx + 5*s,  oy + 22*s + bob, 4*s, 8*s, '#3a3a5a');
-  fill(ctx, fx + 9*s,  oy + 22*s + bob, 4*s, 8*s, '#3a3a5a');
-
-  // 身体
-  fill(ctx, fx + 4*s,  oy + 12*s + bob, 10*s, 11*s, '#4a4a6a');
-  fill(ctx, fx + 5*s,  oy + 13*s + bob, 8*s,  9*s,  '#5a5a7a');
-  // 兜帽
-  fill(ctx, fx + 3*s,  oy + 8*s + bob, 12*s, 6*s,  '#4a4a6a');
-  fill(ctx, fx + 4*s,  oy + 9*s + bob, 10*s, 4*s,  '#5a5a7a');
-
-  // 围巾
-  fill(ctx, fx + 5*s,  oy + 12*s + bob, 8*s, 3*s, PALETTE.F_SALVAGE);
-
-  // 手臂
-  fill(ctx, fx + 2*s,  oy + 13*s + bob, 3*s, 8*s, '#4a4a6a');
-  fill(ctx, fx + 13*s, oy + 13*s + bob, 3*s, 8*s, '#4a4a6a');
-  fill(ctx, fx + 2*s,  oy + 20*s + bob, 3*s, 3*s, PALETTE.SKIN);
-  fill(ctx, fx + 13*s, oy + 20*s + bob, 3*s, 3*s, PALETTE.SKIN);
-
-  // 头
-  fill(ctx, fx + 5*s,  oy + 2*s + bob, 8*s,  10*s, PALETTE.SKIN);
-  fill(ctx, fx + 6*s,  oy + 3*s + bob, 6*s,  8*s,  '#b89060');
-
-  // 兜帽遮脸
-  fill(ctx, fx + 4*s,  oy + 2*s + bob, 10*s, 4*s,  '#4a4a6a');
-
-  // 眼睛 (友善)
-  fill(ctx, fx + 6*s,  oy + 6*s + bob, 2*s, 2*s,  '#000');
-  fill(ctx, fx + 10*s, oy + 6*s + bob, 2*s, 2*s,  '#000');
-  fill(ctx, fx + 6*s,  oy + 6*s + bob, 2*s, 1*s,  PALETTE.F_SALVAGE);
-  fill(ctx, fx + 10*s, oy + 6*s + bob, 2*s, 1*s,  PALETTE.F_SALVAGE);
-
-  // 靴子
-  fill(ctx, fx + 4*s,  oy + 28*s + bob, 5*s, 3*s, '#2a1a0a');
-  fill(ctx, fx + 9*s,  oy + 28*s + bob, 5*s, 3*s, '#2a1a0a');
+function drawMerchant(ctx, ox, oy, scale, frame, facingRight) {
+  scale = scale || 2; frame = frame || 0; facingRight = (facingRight !== false);
+  var s = scale;
+  var bob = Math.sin(frame * 0.2) * s;
+  fill(ctx, ox+4*s, oy+30*s, 10*s, 3*s, 'rgba(0,0,0,0.3)');
+  fill(ctx, ox+5*s, oy+22*s+bob, 4*s, 8*s, '#3a3a5a');
+  fill(ctx, ox+9*s, oy+22*s+bob, 4*s, 8*s, '#3a3a5a');
+  fill(ctx, ox+4*s, oy+12*s+bob, 10*s, 11*s, '#4a4a6a');
+  fill(ctx, ox+5*s, oy+13*s+bob, 8*s, 9*s, '#5a5a7a');
+  fill(ctx, ox+3*s, oy+8*s+bob, 12*s, 6*s, '#4a4a6a');
+  fill(ctx, ox+4*s, oy+9*s+bob, 10*s, 4*s, '#5a5a7a');
+  fill(ctx, ox+5*s, oy+12*s+bob, 8*s, 3*s, PALETTE.F_SALVAGE);
+  fill(ctx, ox+2*s, oy+13*s+bob, 3*s, 8*s, '#4a4a6a');
+  fill(ctx, ox+13*s, oy+13*s+bob, 3*s, 8*s, '#4a4a6a');
+  fill(ctx, ox+2*s, oy+20*s+bob, 3*s, 3*s, PALETTE.SKIN);
+  fill(ctx, ox+13*s, oy+20*s+bob, 3*s, 3*s, PALETTE.SKIN);
+  fill(ctx, ox+5*s, oy+2*s+bob, 8*s, 10*s, PALETTE.SKIN);
+  fill(ctx, ox+6*s, oy+3*s+bob, 6*s, 8*s, '#b89060');
+  fill(ctx, ox+4*s, oy+2*s+bob, 10*s, 4*s, '#4a4a6a');
+  fill(ctx, ox+6*s, oy+6*s+bob, 2*s, 2*s, '#000');
+  fill(ctx, ox+10*s, oy+6*s+bob, 2*s, 2*s, '#000');
+  fill(ctx, ox+6*s, oy+6*s+bob, 2*s, 1*s, PALETTE.F_SALVAGE);
+  fill(ctx, ox+10*s, oy+6*s+bob, 2*s, 1*s, PALETTE.F_SALVAGE);
+  fill(ctx, ox+4*s, oy+28*s+bob, 5*s, 3*s, '#2a1a0a');
+  fill(ctx, ox+9*s, oy+28*s+bob, 5*s, 3*s, '#2a1a0a');
 }
 
-// 零点碎片精灵 (发光六边形, 8x8)
-function drawFragment(ctx, ox, oy, scale = 2, glow = 0, color = PALETTE.F_ZERO) {
-  const s = scale;
-  const g = glow;
-
-  // 外发光
-  if (g > 0) {
+function drawFragment(ctx, ox, oy, scale, glow, color) {
+  scale = scale || 2; glow = glow || 0; color = color || PALETTE.F_ZERO;
+  var s = scale;
+  if (glow > 0) {
     ctx.fillStyle = color + '44';
-    const points = 6;
-    for (let r = 6; r > 0; r--) {
+    for (var r = 6; r > 0; r--) {
       ctx.beginPath();
-      for (let i = 0; i < points; i++) {
-        const angle = (i / points) * Math.PI * 2 - Math.PI / 2;
-        const px = ox + 4*s + Math.cos(angle) * r*s;
-        const py = oy + 4*s + Math.sin(angle) * r*s;
-        i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+      for (var i = 0; i < 6; i++) {
+        var angle = (i / 6) * Math.PI * 2 - Math.PI / 2;
+        var px = ox + 4*s + Math.cos(angle) * r*s;
+        var py = oy + 4*s + Math.sin(angle) * r*s;
+        if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
       }
       ctx.closePath();
       ctx.fill();
     }
   }
-
-  // 六边形本体
   ctx.fillStyle = color;
   ctx.beginPath();
-  for (let i = 0; i < 6; i++) {
-    const angle = (i / 6) * Math.PI * 2 - Math.PI / 2;
-    const px = ox + 4*s + Math.cos(angle) * 3*s;
-    const py = oy + 4*s + Math.sin(angle) * 3*s;
-    i === 0 ? ctx.fillRect(px-2*s, py-2*s, 4*s, 4*s) : ctx.fillRect(px-2*s, py-2*s, 4*s, 4*s);
+  for (i = 0; i < 6; i++) {
+    angle = (i / 6) * Math.PI * 2 - Math.PI / 2;
+    px = ox + 4*s + Math.cos(angle) * 3*s;
+    py = oy + 4*s + Math.sin(angle) * 3*s;
+    ctx.rect(px-2*s, py-2*s, 4*s, 4*s);
   }
-
-  // 内部高光
-  fill(ctx, ox + 3*s, oy + 2*s, 2*s, 2*s, PALETTE.WHITE);
+  ctx.fill();
+  fill(ctx, ox+3*s, oy+2*s, 2*s, 2*s, PALETTE.WHITE);
 }
 
-// 派系图标 (12x12)
-function drawFactionIcon(ctx, ox, oy, faction, scale = 1) {
-  const s = scale;
-  const colors = {
-    SALVAGE:  [PALETTE.F_SALVAGE, '#cc8800'],
-    ASH:      [PALETTE.F_ASH,      '#666666'],
-    RUST:     [PALETTE.F_RUST,     '#aa2222'],
-    IRON:     [PALETTE.F_IRON,     '#338833'],
-    PURE:     [PALETTE.F_PURE,     '#66aa33'],
-    ZERO:     [PALETTE.F_ZERO,     '#33cc66'],
+function drawFactionIcon(ctx, ox, oy, faction, scale) {
+  scale = scale || 1;
+  var s = scale;
+  var colorMap = {
+    SALVAGE:[PALETTE.F_SALVAGE,'#cc8800'],
+    ASH:[PALETTE.F_ASH,'#666666'],
+    RUST:[PALETTE.F_RUST,'#aa2222'],
+    IRON:[PALETTE.F_IRON,'#338833'],
+    PURE:[PALETTE.F_PURE,'#66aa33'],
+    ZERO:[PALETTE.F_ZERO,'#33cc66']
   };
-  const [c, cd] = colors[faction] || [PALETTE.TEXT, PALETTE.TEXT_DIM];
-
-  // 背景圆
-  fill(ctx, ox + 1*s, oy + 1*s, 10*s, 10*s, c + '33');
-  fill(ctx, ox + 2*s, oy + 2*s, 8*s,  8*s,  c + '66');
-  fill(ctx, ox + 3*s, oy + 3*s, 6*s,  6*s,  c);
-
-  // 各派系符号
+  var cm = colorMap[faction] || [PALETTE.TEXT, PALETTE.TEXT_DIM];
+  var c = cm[0], cd = cm[1];
+  fill(ctx, ox+1*s, oy+1*s, 10*s, 10*s, c+'33');
+  fill(ctx, ox+2*s, oy+2*s, 8*s, 8*s, c+'66');
+  fill(ctx, ox+3*s, oy+3*s, 6*s, 6*s, c);
   if (faction === 'SALVAGE') {
-    // 齿轮
-    for (let i = 0; i < 8; i++) {
-      fill(ctx, ox + 5*s + Math.cos(i*Math.PI/4)*3*s, oy + 5*s + Math.sin(i*Math.PI/4)*3*s, 2*s, 2*s, cd);
-    }
-    fill(ctx, ox + 4*s, oy + 4*s, 4*s, 4*s, c);
-  } else if (faction === 'ASH') {
-    // 火焰
-    fill(ctx, ox + 4*s, oy + 6*s, 4*s, 3*s, cd);
-    fill(ctx, ox + 5*s, oy + 4*s, 2*s, 3*s, c);
-    fill(ctx, ox + 5*s, oy + 3*s, 2*s, 2*s, PALETTE.WHITE + '88');
-  } else if (faction === 'RUST') {
-    // 骷髅
-    fill(ctx, ox + 4*s, oy + 3*s, 4*s, 4*s, cd);
-    fill(ctx, ox + 5*s, oy + 4*s, 2*s, 2*s, c);
-    fill(ctx, ox + 4*s, oy + 7*s, 4*s, 2*s, cd);
+    fill(ctx, ox+4*s, oy+4*s, 4*s, 4*s, c);
   } else if (faction === 'IRON') {
-    // 脊椎/盾牌
-    fill(ctx, ox + 4*s, oy + 2*s, 4*s, 8*s, cd);
-    fill(ctx, ox + 5*s, oy + 3*s, 2*s, 6*s, c);
-    fill(ctx, ox + 5*s, oy + 5*s, 2*s, 2*s, cd);
-  } else if (faction === 'PURE') {
-    // 麦穗/植物
-    fill(ctx, ox + 5*s, oy + 2*s, 2*s, 8*s, cd);
-    fill(ctx, ox + 3*s, oy + 4*s, 2*s, 2*s, c);
-    fill(ctx, ox + 7*s, oy + 4*s, 2*s, 2*s, c);
-    fill(ctx, ox + 3*s, oy + 6*s, 2*s, 2*s, c);
-    fill(ctx, ox + 7*s, oy + 6*s, 2*s, 2*s, c);
+    fill(ctx, ox+4*s, oy+2*s, 4*s, 8*s, cd);
+    fill(ctx, ox+5*s, oy+3*s, 2*s, 6*s, c);
+    fill(ctx, ox+5*s, oy+5*s, 2*s, 2*s, cd);
   } else if (faction === 'ZERO') {
-    // 零点符号
-    fill(ctx, ox + 4*s, oy + 4*s, 4*s, 4*s, cd);
-    fill(ctx, ox + 5*s, oy + 5*s, 2*s, 2*s, PALETTE.WHITE);
-    fill(ctx, ox + 5*s, oy + 3*s, 2*s, 2*s, c);
-    fill(ctx, ox + 5*s, oy + 7*s, 2*s, 2*s, c);
-    fill(ctx, ox + 3*s, oy + 5*s, 2*s, 2*s, c);
-    fill(ctx, ox + 7*s, oy + 5*s, 2*s, 2*s, c);
+    fill(ctx, ox+4*s, oy+4*s, 4*s, 4*s, cd);
+    fill(ctx, ox+5*s, oy+5*s, 2*s, 2*s, '#fff');
+    fill(ctx, ox+5*s, oy+3*s, 2*s, 2*s, c);
+    fill(ctx, ox+5*s, oy+7*s, 2*s, 2*s, c);
+    fill(ctx, ox+3*s, oy+5*s, 2*s, 2*s, c);
+    fill(ctx, ox+7*s, oy+5*s, 2*s, 2*s, c);
+  } else if (faction === 'RUST') {
+    fill(ctx, ox+4*s, oy+3*s, 4*s, 4*s, cd);
+    fill(ctx, ox+5*s, oy+4*s, 2*s, 2*s, c);
+    fill(ctx, ox+4*s, oy+7*s, 4*s, 2*s, cd);
+  } else if (faction === 'PURE') {
+    fill(ctx, ox+5*s, oy+2*s, 2*s, 8*s, cd);
+    fill(ctx, ox+3*s, oy+4*s, 2*s, 2*s, c);
+    fill(ctx, ox+7*s, oy+4*s, 2*s, 2*s, c);
+    fill(ctx, ox+3*s, oy+6*s, 2*s, 2*s, c);
+    fill(ctx, ox+7*s, oy+6*s, 2*s, 2*s, c);
+  } else if (faction === 'ASH') {
+    fill(ctx, ox+4*s, oy+6*s, 4*s, 3*s, cd);
+    fill(ctx, ox+5*s, oy+4*s, 2*s, 3*s, c);
+    fill(ctx, ox+5*s, oy+3*s, 2*s, 2*s, '#fff88');
   }
 }
 
-// 地形绘制 - 废土荒野
-function drawWastelandTerrain(ctx, x, y, w, h, variant = 0) {
-  // 天空渐变
-  const sky = ctx.createLinearGradient(x, y, x, y + h * 0.4);
-  sky.addColorStop(0, '#0a0815');
-  sky.addColorStop(1, '#1a1025');
-  ctx.fillStyle = sky;
-  ctx.fillRect(x, y, w, h * 0.4);
-
-  // 地平线
-  const horizon = y + h * 0.38;
-  fill(ctx, x, horizon, w, h * 0.08, '#2a1810');
-
-  // 地面
-  const ground = ctx.createLinearGradient(x, horizon, x, h);
-  ground.addColorStop(0, '#3a2a18');
-  ground.addColorStop(0.5, '#2a2015');
-  ground.addColorStop(1, '#1a1510');
-  ctx.fillStyle = ground;
-  ctx.fillRect(x, horizon + h * 0.06, w, h * 0.56);
-
-  // 碎石
-  const rocks = [
-    [20, 185, 8, 5], [60, 195, 6, 4], [100, 190, 10, 6],
-    [150, 188, 7, 4], [200, 193, 9, 5], [250, 187, 11, 7],
-    [290, 192, 6, 4],
-  ];
-  for (const [rx, ry, rw, rh] of rocks) {
-    fill(ctx, x + rx, y + ry, rw, rh, '#4a3828');
-    fill(ctx, x + rx, y + ry, rw, 1, '#5a4838');
+function drawWastelandTerrain(ctx, x, y, w, h, variant) {
+  variant = variant || 0;
+  var horizon = y + h * 0.38;
+  var sky = ctx.createLinearGradient(x, y, x, y + h * 0.42);
+  sky.addColorStop(0, '#0e0818');
+  sky.addColorStop(1, '#1e1230');
+  ctx.fillStyle = sky; ctx.fillRect(x, y, w, h * 0.42);
+  fill(ctx, x, horizon, w, h * 0.10, '#3a2010');
+  fill(ctx, x, horizon+h*0.10, w, h * 0.02, '#2a1808');
+  var ground = ctx.createLinearGradient(x, horizon, x, h);
+  ground.addColorStop(0, '#4a3020'); ground.addColorStop(0.4, '#3a2518'); ground.addColorStop(1, '#1e1510');
+  ctx.fillStyle = ground; ctx.fillRect(x, horizon + h * 0.12, w, h * 0.88);
+  var rocks = [[20,178,8,5],[60,188,6,4],[100,183,10,6],[150,181,7,4],[200,186,9,5],[250,180,11,7],[290,185,6,4]];
+  for (var r2 = 0; r2 < rocks.length; r2++) {
+    var rx = rocks[r2];
+    fill(ctx, x+rx[0], y+rx[1], rx[2], rx[3], '#5a4030');
+    fill(ctx, x+rx[0], y+rx[1], rx[2], 1, '#6a5040');
+    fill(ctx, x+rx[0], y+rx[1], 1, rx[3]-1, '#6a5040');
   }
-
-  // 辐射云
-  const cloudY = y + 20 + variant * 10;
-  fill(ctx, x + 40, y + cloudY, 30, 8, PALETTE.F_RADIATION + '22');
-  fill(ctx, x + 50, y + cloudY + 2, 20, 6, PALETTE.F_RADIATION + '15');
-  fill(ctx, x + 200, y + cloudY + 15, 40, 6, PALETTE.F_RADIATION + '18');
-  fill(ctx, x + 260, y + cloudY - 5, 25, 5, PALETTE.F_RADIATION + '12');
-
-  // 枯树轮廓
-  const treeX = [80, 180, 260];
-  for (const tx of treeX) {
-    fill(ctx, x + tx, y + horizon - 20, 2, 20, '#1a1208');
-    fill(ctx, x + tx - 4, y + horizon - 16, 3, 2, '#1a1208');
-    fill(ctx, x + tx + 3, y + horizon - 12, 3, 2, '#1a1208');
-    fill(ctx, x + tx - 2, y + horizon - 10, 2, 8, '#1a1208');
+  var cloudY = y + 18 + variant * 10;
+  fill(ctx, x+40, y+cloudY, 30, 8, PALETTE.RADIATION+'33');
+  fill(ctx, x+50, y+cloudY+2, 20, 6, PALETTE.RADIATION+'22');
+  fill(ctx, x+200, y+cloudY+15, 40, 6, PALETTE.RADIATION+'28');
+  fill(ctx, x+260, y+cloudY-5, 25, 5, PALETTE.RADIATION+'1a');
+  var treeX = [80, 180, 260];
+  for (var ti = 0; ti < treeX.length; ti++) {
+    var tx = treeX[ti];
+    fill(ctx, x+tx, y+horizon-24, 2, 22, '#1a1208');
+    fill(ctx, x+tx-4, y+horizon-18, 3, 2, '#1a1208');
+    fill(ctx, x+tx+3, y+horizon-14, 3, 2, '#1a1208');
+    fill(ctx, x+tx-2, y+horizon-12, 2, 10, '#1a1208');
+    fill(ctx, x+tx-3, y+horizon-26, 4, 4, '#2a3a10');
+    fill(ctx, x+tx-1, y+horizon-30, 3, 6, '#1a2a08');
+    fill(ctx, x+tx+2, y+horizon-28, 3, 5, '#2a3a10');
   }
+  fill(ctx, x, horizon, w, 1, '#6a5040');
 }
 
-// 城镇背景
-function drawTownBG(ctx, x, y, w, h, townType = 'MILITARY') {
-  // 夜空
-  const sky = ctx.createLinearGradient(x, y, x, y + h * 0.5);
-  sky.addColorStop(0, '#0a0a12');
-  sky.addColorStop(1, '#1a1520');
-  ctx.fillStyle = sky;
-  ctx.fillRect(x, y, w, h * 0.5);
-
-  // 远山剪影
-  fill(ctx, x, y + h * 0.35, w, h * 0.15, '#1a1510');
-  fill(ctx, x + 20, y + h * 0.32, 40, h * 0.03, '#252015');
-  fill(ctx, x + 100, y + h * 0.30, 60, h * 0.05, '#252015');
-  fill(ctx, x + 200, y + h * 0.33, 50, h * 0.02, '#252015');
-  fill(ctx, x + 260, y + h * 0.28, 40, h * 0.07, '#252015');
-
-  // 地面
-  fill(ctx, x, y + h * 0.48, w, h * 0.52, '#2a2015');
-
-  // 城镇建筑 (不同类型)
-  const buildingColor = townType === 'MILITARY' ? '#3a3a3a' :
-                        townType === 'TRADING'  ? '#4a3a2a' :
-                        townType === 'RUINS'    ? '#3a3020' : '#3a3a30';
-
-  // 建筑群
-  fill(ctx, x + 10,  y + h * 0.28, 25, h * 0.20, buildingColor);
-  fill(ctx, x + 15, y + h * 0.25, 15, h * 0.03, '#4a4a4a');
-  fill(ctx, x + 55,  y + h * 0.30, 35, h * 0.18, buildingColor + 'cc');
-  fill(ctx, x + 60,  y + h * 0.27, 25, h * 0.03, '#5a5a5a');
-  fill(ctx, x + 120, y + h * 0.25, 20, h * 0.23, buildingColor + 'aa');
-  fill(ctx, x + 160, y + h * 0.32, 45, h * 0.16, buildingColor + 'dd');
-  fill(ctx, x + 165, y + h * 0.29, 35, h * 0.03, '#5a5a5a');
-  fill(ctx, x + 230, y + h * 0.28, 30, h * 0.20, buildingColor + 'cc');
-  fill(ctx, x + 235, y + h * 0.25, 20, h * 0.03, '#4a4a4a');
-  fill(ctx, x + 280, y + h * 0.33, 25, h * 0.15, buildingColor + 'bb');
-
-  // 窗户灯光
-  const windowFlicker = Math.floor(Date.now() / 800) % 3;
-  const winData = [
-    [18, 30, 5], [22, 30, 5], [70, 33, 4], [75, 33, 4],
-    [125, 28, 4], [130, 28, 4], [170, 35, 5], [175, 35, 5],
-    [238, 31, 4], [243, 31, 4],
-  ];
-  for (const [wx, wy, ws] of winData) {
-    const flicker = (wx / 10 + windowFlicker) % 2 === 0;
-    fill(ctx, x + wx, y + wy * (h/100), ws, ws,
-         flicker ? PALETTE.ACCENT_HI + 'aa' : PALETTE.ACCENT + '66');
+function drawTownBG(ctx, x, y, w, h, townType) {
+  townType = townType || 'MILITARY';
+  var sky = ctx.createLinearGradient(x, y, x, y + h * 0.5);
+  sky.addColorStop(0, '#0a0a12'); sky.addColorStop(1, '#1a1520');
+  ctx.fillStyle = sky; ctx.fillRect(x, y, w, h * 0.5);
+  fill(ctx, x, y+h*0.35, w, h*0.15, '#1a1510');
+  fill(ctx, x+20, y+h*0.32, 40, h*0.03, '#252015');
+  fill(ctx, x+100, y+h*0.30, 60, h*0.05, '#252015');
+  fill(ctx, x+200, y+h*0.33, 50, h*0.02, '#252015');
+  fill(ctx, x+260, y+h*0.28, 40, h*0.07, '#252015');
+  fill(ctx, x, y+h*0.48, w, h*0.52, '#2a2015');
+  var bc = townType === 'MILITARY' ? '#3a3a3a' : townType === 'TRADING' ? '#4a3a2a' : townType === 'RUINS' ? '#3a3020' : '#3a3a30';
+  fill(ctx, x+10, y+h*0.28, 25, h*0.20, bc);
+  fill(ctx, x+15, y+h*0.25, 15, h*0.03, '#4a4a4a');
+  fill(ctx, x+55, y+h*0.30, 35, h*0.18, bc+'cc');
+  fill(ctx, x+60, y+h*0.27, 25, h*0.03, '#5a5a5a');
+  fill(ctx, x+120, y+h*0.25, 20, h*0.23, bc+'aa');
+  fill(ctx, x+160, y+h*0.32, 45, h*0.16, bc+'dd');
+  fill(ctx, x+165, y+h*0.29, 35, h*0.03, '#5a5a5a');
+  fill(ctx, x+230, y+h*0.28, 30, h*0.20, bc+'cc');
+  fill(ctx, x+235, y+h*0.25, 20, h*0.03, '#4a4a4a');
+  fill(ctx, x+280, y+h*0.33, 25, h*0.15, bc+'bb');
+  var wf = Math.floor(Date.now() / 800) % 3;
+  var winData = [[18,30,5],[22,30,5],[70,33,4],[75,33,4],[125,28,4],[130,28,4],[170,35,5],[175,35,5],[238,31,4],[243,31,4]];
+  for (var wi = 0; wi < winData.length; wi++) {
+    var wx = winData[wi];
+    var flicker = (wx[0]/10 + wf) % 2 === 0;
+    fill(ctx, x+wx[0], y+wx[1]*(h/100), wx[2], wx[2], flicker ? PALETTE.ACCENT_HI+'aa' : PALETTE.ACCENT+'66');
   }
-
-  // 城镇灯光
-  fill(ctx, x + 5,  y + h * 0.20, 2, 2, PALETTE.ACCENT + '44');
-  fill(ctx, x + 300, y + h * 0.18, 2, 2, PALETTE.ACCENT + '44');
+  fill(ctx, x+5, y+h*0.20, 2, 2, PALETTE.ACCENT+'44');
+  fill(ctx, x+300, y+h*0.18, 2, 2, PALETTE.ACCENT+'44');
 }
 
 // ============================================================
 // 画面1: 战斗/事件场景
 // ============================================================
 function renderCombatScene(canvas) {
-  const ctx = canvas.getContext('2d');
-  const W = canvas.width, H = canvas.height;
-  const t = Date.now();
-
-  // 清屏
+  var ctx = canvas.getContext('2d');
+  var W = canvas.width, H = canvas.height;
+  var t = Date.now();
   fill(ctx, 0, 0, W, H, PALETTE.BG);
-
-  // 地形背景
   drawWastelandTerrain(ctx, 0, 0, W, H, 0);
-
-  // 道路
-  fill(ctx, 0, H - 80, W, 30, PALETTE.DIRT);
-  fill(ctx, 0, H - 78, W, 2, PALETTE.SAND);
-  fill(ctx, 0, H - 50, W, 2, PALETTE.SAND);
-  // 道路纹理
-  for (let rx = 0; rx < W; rx += 12) {
-    fill(ctx, rx, H - 74, 6, 2, PALETTE.GROUND + 'aa');
-  }
-
-  // === 货车 (左) ===
-  drawTruck(ctx, 30, H - 110, 1.5, true, false);
-
-  // === 强盗 (右) ===
-  drawBandit(ctx, W - 100, H - 115, 2, Math.floor(t / 100) % 8, false);
-
-  // 第二个强盗 (中远)
-  drawBandit(ctx, W - 65, H - 100, 1.5, Math.floor(t / 120) % 8 + 2, false);
-
-  // 战斗特效
-  const impactFrame = Math.floor(t / 300) % 4;
+  fill(ctx, 0, H-80, W, 30, '#4a3020');
+  fill(ctx, 0, H-78, W, 2, '#5a4030');
+  fill(ctx, 0, H-50, W, 2, '#6a5040');
+  for (var rx = 0; rx < W; rx += 12) fill(ctx, rx, H-74, 6, 2, '#5a4030' + 'cc');
+  drawTruck(ctx, 30, H-110, 1.5, true, false);
+  drawBandit(ctx, W-100, H-115, 2, Math.floor(t/100)%8, false);
+  drawBandit(ctx, W-65, H-100, 1.5, Math.floor(t/120)%8+2, false);
+  var impactFrame = Math.floor(t/300)%4;
   if (impactFrame < 2) {
-    // 枪口闪光
-    fill(ctx, W - 110, H - 95, 10, 6, PALETTE.ACCENT_HI + 'cc');
-    fill(ctx, W - 105, H - 93, 6, 4, PALETTE.WHITE + '88');
-    // 子弹轨迹
-    fill(ctx, W - 120, H - 93, 15, 2, PALETTE.ACCENT + '88');
+    fill(ctx, W-110, H-95, 10, 6, PALETTE.ACCENT_HI+'cc');
+    fill(ctx, W-105, H-93, 6, 4, PALETTE.WHITE+'88');
+    fill(ctx, W-120, H-93, 15, 2, PALETTE.ACCENT+'88');
   }
-
-  // 血量条
   fill(ctx, 20, 10, 100, 8, PALETTE.BG2);
   border(ctx, 20, 10, 100, 8, PALETTE.BORDER);
-  fill(ctx, 21, 11, 97, 6, PALETTE.DANGER + '44');
+  fill(ctx, 21, 11, 97, 6, PALETTE.DANGER+'44');
   fill(ctx, 21, 11, 75, 6, PALETTE.DANGER);
   pxText(ctx, 'HP: 75/100', 22, 12, 1, PALETTE.WHITE);
-
-  // 敌人血条
-  fill(ctx, W - 120, 10, 100, 8, PALETTE.BG2);
-  border(ctx, W - 120, 10, 100, 8, PALETTE.BORDER);
-  fill(ctx, W - 119, 11, 98, 6, PALETTE.DANGER + '44');
-  fill(ctx, W - 119, 11, 45, 6, PALETTE.DANGER);
-  pxText(ctx, '\u5F37\u76F2: 45', W - 118, 12, 1, PALETTE.WHITE);
-
-  // === 对话框 ===
-  const dlgY = H - 70;
-  fill(ctx, 4, dlgY, W - 8, 65, PALETTE.BG2);
-  border(ctx, 4, dlgY, W - 8, 65, PALETTE.ACCENT, 2);
-  // 对话框标题栏
-  fill(ctx, 4, dlgY, W - 8, 12, PALETTE.BG3);
-  border(ctx, 4, dlgY, W - 8, 12, PALETTE.ACCENT);
-  pxText(ctx, '\u226B\u226B \u5F37\u76F2\u5949\u51F3 \u226A\u226A', 8, dlgY + 3, 1, PALETTE.DANGER);
-  pxText(ctx, '[\u7A7A\u683C] \u8D30\u8D1F   [\u6307\u7ACB] \u9003\u8DD1   [\u56DE\u8F66] \u4E00\u6218', W - 160, dlgY + 3, 1, PALETTE.TEXT_DIM);
-
-  // 对话内容
-  const line1 = '\u201C\u505C\u4E0B\uff01\u4EA4\u51FA\u8D27\u7269\uFF0C\u5426\u5219\u9000\u4E0D\u538B\u4EC1\u201D';
-  const line3 = '[\uA/\uB/\uC] \u9009\u62E9   [\u56DE\u8F66] \u786E\u8BA4';
-  const selected = Math.floor(t / 500) % 3;
-
-  pxText(ctx, line1, 8, dlgY + 18, 1, PALETTE.WHITE);
-  const opts = [
-    { y: dlgY + 28, label: '[\uA] \u5168\u529B\u6483\u51FB', desc: '\u4F24\u5BB3+50% \u81EA\u635F+50%', sel: selected === 0 },
-    { y: dlgY + 36, label: '[\uB] \u7CBE\u51C6\u6253\u51FB', desc: '\u968F\u673A\u4F24\u5BB3 \u9AD8\u56DE\u62A5', sel: selected === 1 },
-    { y: dlgY + 44, label: '[\uC] \u56FA\u5B88\u9632\u5FA1', desc: '\u4F24\u5BB3-30% \u81EA\u635F-60%', sel: selected === 2 },
+  fill(ctx, W-120, 10, 100, 8, PALETTE.BG2);
+  border(ctx, W-120, 10, 100, 8, PALETTE.BORDER);
+  fill(ctx, W-119, 11, 98, 6, PALETTE.DANGER+'44');
+  fill(ctx, W-119, 11, 45, 6, PALETTE.DANGER);
+  pxText(ctx, '强盗: 45', W-118, 12, 1, PALETTE.WHITE);
+  var dlgY = H-70;
+  fill(ctx, 4, dlgY, W-8, 65, PALETTE.BG2);
+  border(ctx, 4, dlgY, W-8, 65, PALETTE.ACCENT, 2);
+  fill(ctx, 4, dlgY, W-8, 12, PALETTE.BG3);
+  border(ctx, 4, dlgY, W-8, 12, PALETTE.ACCENT);
+  pxText(ctx, '>>> 强盗埋伏 <<<', 8, dlgY+3, 1, PALETTE.DANGER);
+  pxText(ctx, '[空格] 贿赂  [指] 逃跑  [回车] 一战', W-160, dlgY+3, 1, PALETTE.TEXT_DIM);
+  var selected = Math.floor(t/500)%3;
+  pxText(ctx, '"停下！交出货物，否则退不压人"', 8, dlgY+18, 1, PALETTE.WHITE);
+  var opts = [
+    {y: dlgY+28, label:'[A] 全力突击', desc:'伤害+50% 自损+50%', sel:selected===0},
+    {y: dlgY+36, label:'[B] 精准打击', desc:'随机伤害 高回报', sel:selected===1},
+    {y: dlgY+44, label:'[C] 固守防御', desc:'伤害-30% 自损-60%', sel:selected===2}
   ];
-  for (const opt of opts) {
-    const col = opt.sel ? PALETTE.ACCENT_HI : PALETTE.TEXT;
+  for (var oi = 0; oi < opts.length; oi++) {
+    var opt = opts[oi];
+    var col = opt.sel ? PALETTE.ACCENT_HI : PALETTE.TEXT;
     fill(ctx, 8, opt.y, 2, 5, col);
-    pxText(ctx, opt.label, 12, opt.y + 1, 1, col);
-    pxText(ctx, '  ' + opt.desc, 14, opt.y + 7, 1, PALETTE.TEXT_DIM);
-    if (opt.sel) pxText(ctx, '\u3E\u3E\u3E', 185, opt.y + 1, 1, PALETTE.ACCENT_HI);
+    pxText(ctx, opt.label, 12, opt.y+1, 1, col);
+    pxText(ctx, '  ' + opt.desc, 14, opt.y+7, 1, PALETTE.TEXT_DIM);
+    if (opt.sel) pxText(ctx, '>>>', 185, opt.y+1, 1, PALETTE.ACCENT_HI);
   }
-
-  // 顶部 HUD
   fill(ctx, 0, 0, W, 10, PALETTE.BG3);
   border(ctx, 0, 0, W, 10, PALETTE.ACCENT);
-  pxText(ctx, '\u56DE:24 \u4E58:4 \u94B1:847 \u98DF:68 \u8017:72  ', 2, 2, 1, PALETTE.ACCENT);
-  pxText(ctx, '\u788D:3/7', 200, 2, 1, PALETTE.F_ZERO);
-
+  pxText(ctx, '回合:24 乘员:4 钱:847 食:68 耗:72  ', 2, 2, 1, PALETTE.ACCENT);
+  pxText(ctx, '碎:3/7', 200, 2, 1, PALETTE.F_ZERO);
   crtLines(ctx, W, H);
   vignette(ctx, W, H);
 }
@@ -830,118 +539,94 @@ function renderCombatScene(canvas) {
 // 画面2: 城镇/车库界面
 // ============================================================
 function renderTownScene(canvas) {
-  const ctx = canvas.getContext('2d');
-  const W = canvas.width, H = canvas.height;
-  const t = Date.now();
-
+  var ctx = canvas.getContext('2d');
+  var W = canvas.width, H = canvas.height;
+  var t = Date.now();
   fill(ctx, 0, 0, W, H, PALETTE.BG);
-
-  // 城镇背景
-  drawTownBG(ctx, 0, 0, W, H * 0.55, 'MILITARY');
-
-  // 分割线
-  fill(ctx, 0, H * 0.52, W, 2, PALETTE.BORDER);
-
-  // 货车特写 (中部)
-  fill(ctx, 20, H * 0.55, W - 40, H * 0.25, PALETTE.BG2);
-  border(ctx, 20, H * 0.55, W - 40, H * 0.25, PALETTE.BORDER);
-  pxText(ctx, '\u2605 \u4F60\u7684\u8F66\u8F86 \u2605', 24, H * 0.55 + 4, 1, PALETTE.ACCENT);
-
-  // 大货车预览
-  drawTruck(ctx, W/2 - 80, H * 0.55 + 10, 1.8, true, false);
-
-  // 改装件状态
-  const mods = [
-    { label: '\u94C1\u7532',  val: 2, color: PALETTE.ACCENT },
-    { label: '\u53D1\u52A8\u673A',   val: 3, color: PALETTE.ACCENT },
-    { label: '\u96F7\u8FBE',  val: 1, color: PALETTE.TEXT },
-    { label: '\u6BDB\u5229',   val: 0, color: PALETTE.TEXT },
-    { label: '\u63A2\u6D4B\u5668',   val: 1, color: PALETTE.SUCCESS },
+  drawTownBG(ctx, 0, 0, W, H*0.55, 'MILITARY');
+  fill(ctx, 0, H*0.52, W, 2, PALETTE.BORDER);
+  fill(ctx, 20, H*0.55, W-40, H*0.25, PALETTE.BG2);
+  border(ctx, 20, H*0.55, W-40, H*0.25, PALETTE.BORDER);
+  pxText(ctx, '★ 你的车辆 ★', 24, H*0.55+4, 1, PALETTE.ACCENT);
+  drawTruck(ctx, W/2-80, H*0.55+10, 1.8, true, false);
+  var mods = [
+    {label:'铁甲', val:2, color:PALETTE.ACCENT},
+    {label:'发动机', val:3, color:PALETTE.ACCENT},
+    {label:'雷达', val:1, color:PALETTE.TEXT},
+    {label:'毛利', val:0, color:PALETTE.TEXT},
+    {label:'探测器', val:1, color:PALETTE.SUCCESS}
   ];
-  let mx = W/2 + 10;
-  for (const m of mods) {
-    pxText(ctx, m.label + ':', mx, H * 0.55 + 12, 1, m.color + 'aa');
-    for (let i = 0; i < 3; i++) {
-      fill(ctx, mx + 36 + i * 6, H * 0.55 + 12, 4, 5,
-           i < m.val ? m.color : PALETTE.BG3);
+  var mx = W/2+10;
+  for (var mi = 0; mi < mods.length; mi++) {
+    var m = mods[mi];
+    pxText(ctx, m.label+':', mx, H*0.55+12, 1, m.color+'aa');
+    for (var i2 = 0; i2 < 3; i2++) {
+      fill(ctx, mx+36+i2*6, H*0.55+12, 4, 5, i2 < m.val ? m.color : PALETTE.BG3);
     }
     mx += 60;
   }
-
-  // 底部面板
-  const pY = H * 0.82;
-  fill(ctx, 0, pY, W, H - pY, PALETTE.BG2);
-  border(ctx, 0, pY, W, H - pY, PALETTE.ACCENT);
-
-  pxText(ctx, '\u226B\u226B \u94C1\u523A\u9547 \u226A\u226A  [\u519B\u4E8B\u57CE]', 4, pY + 4, 1.2, PALETTE.ACCENT);
-  pxText(ctx, '\u56DE\u5408 24  |  \u4E58\u5458: 4  |  \u94B1\u5E01: 847  |  \u79EF\u5206: 4280', 4, pY + 14, 1, PALETTE.TEXT);
-
-  // 状态条
-  const bars = [
-    { label: '\u6CB9\u6599', val: 0.68, col: PALETTE.ACCENT },
-    { label: '\u8010\u4E45', val: 0.72, col: PALETTE.TEXT },
-    { label: '\u8FD0\u8D39',  val: 0.40, col: PALETTE.TEXT_DIM },
-    { label: '\u58F0\u671B',  val: 0.55, col: PALETTE.F_IRON },
+  var pY = H*0.82;
+  fill(ctx, 0, pY, W, H-pY, PALETTE.BG2);
+  border(ctx, 0, pY, W, H-pY, PALETTE.ACCENT);
+  pxText(ctx, '>>> 铁刺镇 <<<  [军事城]', 4, pY+4, 1.2, PALETTE.ACCENT);
+  pxText(ctx, '回合 24  |  乘员: 4  |  钱币: 847  |  积分: 4280', 4, pY+14, 1, PALETTE.TEXT);
+  var bars = [
+    {label:'油料', val:0.68, col:PALETTE.ACCENT},
+    {label:'耐久', val:0.72, col:PALETTE.TEXT},
+    {label:'运费', val:0.40, col:PALETTE.TEXT_DIM},
+    {label:'声望', val:0.55, col:PALETTE.F_IRON}
   ];
-  bars.forEach((b, i) => {
-    const bx = 4 + i * 78;
-    const by = pY + 24;
-    pxText(ctx, b.label + ':', bx, by, 1, PALETTE.TEXT_DIM);
-    fill(ctx, bx + 28, by + 1, 45, 4, PALETTE.BG3);
-    fill(ctx, bx + 28, by + 1, Math.floor(45 * b.val), 4, b.col);
-  });
-
-  // 派系声望 (右上角)
-  fill(ctx, W - 108, 14, 104, 50, PALETTE.BG2);
-  border(ctx, W - 108, 14, 104, 50, PALETTE.BORDER);
-  pxText(ctx, '\u6D3E\u7CFB', W - 106, 18, 1, PALETTE.ACCENT);
-  const miniFac = [
-    { n: '\u94C1\u523A', c: PALETTE.F_IRON, r: 2 },
-    { n: '\u6253\u6377', c: PALETTE.F_SALVAGE, r: 1 },
-    { n: '\u96F7\u70F9', c: PALETTE.F_ZERO, r: 1 },
-    { n: '\u94FD\u8F6E', c: PALETTE.F_RUST, r: 0 },
-    { n: '\u7EAF\u7D20', c: PALETTE.F_PURE, r: -1 },
+  for (var bi = 0; bi < bars.length; bi++) {
+    var b = bars[bi];
+    var bx = 4+bi*78, by = pY+24;
+    pxText(ctx, b.label+':', bx, by, 1, PALETTE.TEXT_DIM);
+    fill(ctx, bx+28, by+1, 45, 4, PALETTE.BG3);
+    fill(ctx, bx+28, by+1, Math.floor(45*b.val), 4, b.col);
+  }
+  fill(ctx, W-108, 14, 104, 50, PALETTE.BG2);
+  border(ctx, W-108, 14, 104, 50, PALETTE.BORDER);
+  pxText(ctx, '派系', W-106, 18, 1, PALETTE.ACCENT);
+  var miniFac = [
+    {n:'铁刺', c:PALETTE.F_IRON, r:2},
+    {n:'打捷', c:PALETTE.F_SALVAGE, r:1},
+    {n:'雷烽', c:PALETTE.F_ZERO, r:1},
+    {n:'锈轮', c:PALETTE.F_RUST, r:0},
+    {n:'纯素', c:PALETTE.F_PURE, r:-1}
   ];
-  miniFac.forEach((f, i) => {
-    const fy = 26 + i * 7;
-    pxText(ctx, f.n + ':', W - 106, fy, 1, f.c + 'aa');
-    for (let r = 0; r < 5; r++) {
-      const filled = r < f.r + 2;
-      fill(ctx, W - 78 + r * 7, fy, 5, 4, filled ? f.c : '#222');
+  for (var fi = 0; fi < miniFac.length; fi++) {
+    var f = miniFac[fi];
+    var fy = 26+fi*7;
+    pxText(ctx, f.n+':', W-106, fy, 1, f.c+'aa');
+    for (var r3 = 0; r3 < 5; r3++) {
+      var filled2 = r3 < f.r+2;
+      fill(ctx, W-78+r3*7, fy, 5, 4, filled2 ? f.c : '#222');
     }
-  });
-
-  // 操作菜单
-  const menuX = W - 108;
-  const menuY = H * 0.82 + 6;
+  }
+  var menuX = W-108, menuY = H*0.82+6;
   fill(ctx, menuX, menuY, 104, 60, PALETTE.BG3);
   border(ctx, menuX, menuY, 104, 60, PALETTE.BORDER);
-  const menuItems = [
-    { k: '[\u6307]', l: '\u6307\u4EE4', c: PALETTE.ACCENT },
-    { k: '[\u661F]', l: '\u5546\u52A1',  c: PALETTE.TEXT },
-    { k: '[\u8C1C]', l: '\u6539\u88C5',   c: PALETTE.TEXT },
-    { k: '[\u4EBA]', l: '\u4E58\u5458',   c: PALETTE.TEXT },
-    { k: '[\u4EFB]', l: '\u4EFB\u52A1', c: PALETTE.F_SALVAGE },
-    { k: '[\u65E5]', l: '\u65E5\u5FD7',   c: PALETTE.F_ZERO },
+  var menuItems = [
+    {k:'[指]', l:'指令', c:PALETTE.ACCENT},
+    {k:'[星]', l:'商务', c:PALETTE.TEXT},
+    {k:'[诡]', l:'改装', c:PALETTE.TEXT},
+    {k:'[人]', l:'乘员', c:PALETTE.TEXT},
+    {k:'[任]', l:'任务', c:PALETTE.F_SALVAGE},
+    {k:'[日]', l:'日志', c:PALETTE.F_ZERO}
   ];
-  menuItems.forEach((m, i) => {
-    const my = menuY + 4 + i * 9;
-    fill(ctx, menuX + 2, my, 2, 5, m.c);
-    pxText(ctx, m.k, menuX + 6, my + 1, 1, m.c);
-    pxText(ctx, m.l, menuX + 24, my + 1, 1, m.c + 'cc');
-  });
-
-  // 底部操作提示
-  fill(ctx, 0, H - 14, W, 14, PALETTE.BG3);
-  border(ctx, 0, H - 14, W, 14, PALETTE.ACCENT);
-  pxText(ctx, '\u70B9\u51FB\u9009\u9879\u8FDB\u5165   |   [\u8C1C] \u8F66\u8F86   [\u4F11] \u4F11\u606F   [\u4FEE] \u7EF4\u4FEE   [\u5730] \u5730\u56FE', 4, H - 9, 1, PALETTE.TEXT_DIM);
-
-  // 顶部 HUD
+  for (var mi2 = 0; mi2 < menuItems.length; mi2++) {
+    var m2 = menuItems[mi2];
+    var my = menuY+4+mi2*9;
+    fill(ctx, menuX+2, my, 2, 5, m2.c);
+    pxText(ctx, m2.k, menuX+6, my+1, 1, m2.c);
+    pxText(ctx, m2.l, menuX+24, my+1, 1, m2.c+'cc');
+  }
+  fill(ctx, 0, H-14, W, 14, PALETTE.BG3);
+  border(ctx, 0, H-14, W, 14, PALETTE.ACCENT);
+  pxText(ctx, '点击选项进入   |   [诡] 车辆   [休] 休息   [修] 维修   [地] 地图', 4, H-9, 1, PALETTE.TEXT_DIM);
   fill(ctx, 0, 0, W, 14, PALETTE.BG3);
   border(ctx, 0, 0, W, 14, PALETTE.ACCENT);
-  pxText(ctx, '\u56DE:24 \u4E58:4 \u94B1:847 \u98DF:68 \u8017:72  ', 2, 4, 1, PALETTE.ACCENT);
-  pxText(ctx, '\u788D:3/7', 200, 4, 1, PALETTE.F_ZERO);
-
+  pxText(ctx, '回合:24 乘员:4 钱:847 食:68 耗:72  ', 2, 4, 1, PALETTE.ACCENT);
+  pxText(ctx, '碎:3/7', 200, 4, 1, PALETTE.F_ZERO);
   crtLines(ctx, W, H);
   vignette(ctx, W, H);
 }
@@ -950,226 +635,132 @@ function renderTownScene(canvas) {
 // 画面3: 派系声望面板
 // ============================================================
 function renderFactionsScene(canvas) {
-  const ctx = canvas.getContext('2d');
-  const W = canvas.width, H = canvas.height;
-  const t = Date.now();
-
+  var ctx = canvas.getContext('2d');
+  var W = canvas.width, H = canvas.height;
+  var t = Date.now();
   fill(ctx, 0, 0, W, H, PALETTE.BG);
-
-  // 背景装饰
-  ctx.fillStyle = PALETTE.BG2;
-  ctx.fillRect(0, 0, W, H);
-  ctx.fillStyle = PALETTE.BG3;
-  ctx.fillRect(0, 0, W, H);
-  // 网格
-  ctx.strokeStyle = PALETTE.BORDER + '22';
-  ctx.lineWidth = 1;
-  for (let gx = 0; gx < W; gx += 16) {
-    ctx.beginPath(); ctx.moveTo(gx, 0); ctx.lineTo(gx, H); ctx.stroke();
-  }
-  for (let gy = 0; gy < H; gy += 16) {
-    ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(W, gy); ctx.stroke();
-  }
-
-  // 标题
+  ctx.fillStyle = PALETTE.BG2; ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = PALETTE.BG3; ctx.fillRect(0, 0, W, H);
+  ctx.strokeStyle = PALETTE.BORDER+'22'; ctx.lineWidth = 1;
+  for (var gx = 0; gx < W; gx += 16) { ctx.beginPath(); ctx.moveTo(gx, 0); ctx.lineTo(gx, H); ctx.stroke(); }
+  for (var gy = 0; gy < H; gy += 16) { ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(W, gy); ctx.stroke(); }
   fill(ctx, 0, 0, W, 20, PALETTE.BG3);
   border(ctx, 0, 0, W, 20, PALETTE.ACCENT);
-  pxText(ctx, '\u2605 \u6D3E\u7CFB\u58F0\u671B \u2605', 4, 6, 1.2, PALETTE.ACCENT);
-  pxText(ctx, '\u56DE:24   \u788D\u7247: 3/7   \u79EF\u5206: 4280', 180, 6, 1, PALETTE.TEXT_DIM);
+  pxTextCenter(ctx, '★ 派系声望 ★', W/2, 6, 1.2, PALETTE.ACCENT);
+  pxText(ctx, '回合:24  碎片: 3/7  积分: 4280', 180, 6, 1, PALETTE.TEXT_DIM);
 
-  // 派系列表
-  const factions = [
-    { id: '\u94C1\u523A\u810A\u690E',  color: PALETTE.F_IRON,    rep: 2, level: '\u4FE1\u4EFB',  rank: '\u8D85\u7EA7\u4F1A\u5458',
-      desc: '\u79E9\u5E8F\u3001\u7EAA\u5F8B\u3001\u9057\u4EA7',
-      likes: '\u670D\u4ECE\u3001\u6B66\u5668\u3001\u79E9\u5E8F', dislikes: '\u6CA6\u4E71\u3001\u53D8\u5F02\u8005',
-      discount: -20, missions: 3, totalM: 3, border: PALETTE.F_IRON },
-    { id: '\u6253\u6377\u8054\u76DF', color: PALETTE.F_SALVAGE, rep: 1, level: '\u53CB\u597D', rank: '\u4FE1\u4EFB',
-      desc: '\u6536\u96C6\u65E7\u6280\u672F\u3002\u53CD\u7070\u7106\u6D01',
-      likes: '\u6280\u672F\u3001\u6253\u6377\u3001\u8001\u8BB0\u5F55', dislikes: '\u7070\u7106\u6559\u4F1A',
-      discount: -10, missions: 2, totalM: 3, border: PALETTE.F_SALVAGE },
-    { id: '\u96F7\u70F9\u63A2\u7D22',   color: PALETTE.F_ZERO,    rep: 1, level: '\u53CB\u597D', rank: '\u5408\u4F5C\u4F19\u4F34',
-      desc: '\u771F\u76F8\u5C31\u5728\u90A3\u91CC',
-      likes: '\u771F\u76F8\u3001\u788D\u7247\u3001\u8BB0\u5F55', dislikes: '\u5C01\u9500',
-      discount: -10, missions: 1, totalM: 3, border: PALETTE.F_ZERO },
-    { id: '\u94FD\u8F6E\u5E02\u573A',   color: PALETTE.F_RUST,     rep: 0, level: '\u4E2D\u7ACB', rank: '\u6B63\u5E38',
-      desc: '\u552E\u5586\u4E00\u5207\u3002\u95EE\u9898\u5374\u4E0D\u95EE',
-      likes: '\u94B1\u5E01\u3001\u60C5\u62A5\u3001\u8F6C\u8FD0', dislikes: '\u6218\u4E89',
-      discount: 0, missions: 0, totalM: 3, border: PALETTE.F_RUST },
-    { id: '\u7EAF\u7D20\u571F\u5730',  color: PALETTE.F_PURE,     rep: -1, level: '\u654C\u89C6', rank: '\u907F\u5F00',
-      desc: '\u4FDD\u62A4\u98DF\u7269\u3002\u4FDD\u62A4\u751F\u547D',
-      likes: '\u98DF\u7269\u3001\u6C34\u6E90\u3001\u5E73\u548C', dislikes: '\u4F9B\u5E94\u5A01\u80C1',
-      discount: 15, missions: 0, totalM: 3, border: PALETTE.TEXT_DIM },
-    { id: '\u7070\u7106\u4EB2\u65CF',     color: PALETTE.F_ASH,     rep: -1, level: '\u654C\u89C6', rank: '\u907F\u5F00',
-      desc: '\u51C0\u5316\u5E9F\u571F\u3002\u6B8B\u706D\u53D8\u5F02\u8005',
-      likes: '\u79E9\u5E8F\u3001\u533B\u836F\u3001\u7EAF\u51C0', dislikes: '\u53D8\u5F02\u8005\u3001\u6253\u6377\u8005',
-      discount: 15, missions: 0, totalM: 3, border: PALETTE.TEXT_DIM },
+  var factions = [
+    {id:'铁脊髓', color:PALETTE.F_IRON, rep:2, level:'信任', rank:'超级会员', desc:'秩序、纪律、遗产', discount:-20, missions:3, totalM:3, border:PALETTE.F_IRON, icon:'IRON'},
+    {id:'打捷联盟', color:PALETTE.F_SALVAGE, rep:1, level:'友好', rank:'信任', desc:'收集旧技术。反灰烬净化', discount:-10, missions:2, totalM:3, border:PALETTE.F_SALVAGE, icon:'SALVAGE'},
+    {id:'雷烽探索', color:PALETTE.F_ZERO, rep:1, level:'友好', rank:'合作伙伴', desc:'真相就在那里', discount:-10, missions:1, totalM:3, border:PALETTE.F_ZERO, icon:'ZERO'},
+    {id:'锈轮市场', color:PALETTE.F_RUST, rep:0, level:'中立', rank:'正常', desc:'售罄一切。问题却不问', discount:0, missions:0, totalM:3, border:PALETTE.F_RUST, icon:'RUST'},
+    {id:'纯素土地', color:PALETTE.F_PURE, rep:-1, level:'敌视', rank:'避开', desc:'保护食物。保护生命', discount:15, missions:0, totalM:3, border:PALETTE.TEXT_DIM, icon:'PURE'},
+    {id:'灰烬亲族', color:PALETTE.F_ASH, rep:-1, level:'敌视', rank:'避开', desc:'净化废土。残灭变异者', discount:15, missions:0, totalM:3, border:PALETTE.TEXT_DIM, icon:'ASH'}
   ];
 
-  factions.forEach((f, i) => {
-    const fy = 24 + i * 35;
-    const fx = 4;
-    const fw = W - 8;
-
-    // 面板背景
+  for (var fi2 = 0; fi2 < factions.length; fi2++) {
+    var f = factions[fi2];
+    var fy = 24+fi2*35;
+    var fx = 4, fw = W-8;
     fill(ctx, fx, fy, fw, 33, PALETTE.BG2);
     border(ctx, fx, fy, fw, 33, f.border);
-
-    // 派系图标
-    const iconKey = f.id === '\u94C1\u523A\u810A\u690E' ? 'IRON' :
-                    f.id === '\u6253\u6377\u8054\u76DF' ? 'SALVAGE' :
-                    f.id === '\u96F7\u70F9\u63A2\u7D22' ? 'ZERO' :
-                    f.id === '\u94FD\u8F6E\u5E02\u573A' ? 'RUST' :
-                    f.id === '\u7EAF\u7D20\u571F\u5730' ? 'PURE' : 'ASH';
-    drawFactionIcon(ctx, fx + 4, fy + 4, iconKey, 1.5);
-
-    // 名称和等级
-    pxText(ctx, f.id, fx + 30, fy + 6, 1.3, f.color);
-    pxText(ctx, '[' + f.level + ']   \u7B49\u7EA7: ' + f.rank, fx + 30, fy + 16, 1, PALETTE.TEXT_DIM);
-
-    // 声望条
-    const barStart = fx + 160;
-    pxText(ctx, '\u58F0:', barStart, fy + 10, 1, PALETTE.TEXT_DIM);
-    const labels = ['\u654C', '\u65E0', '\u4E2D', '\u53CB', '\u4FE1'];
-    for (let r = 0; r < 5; r++) {
-      const filled = r <= f.rep + 2;
-      fill(ctx, barStart + 28 + r * 10, fy + 4, 8, 6, filled ? f.color : '#222');
-      fill(ctx, barStart + 28 + r * 10, fy + 10, 8, 3, filled ? f.color + '88' : '#111');
-      pxText(ctx, labels[r], barStart + 28 + r * 10, fy + 14, 1, PALETTE.TEXT_DARK);
+    drawFactionIcon(ctx, fx+4, fy+4, f.icon, 1.5);
+    pxText(ctx, f.id, fx+30, fy+6, 1.3, f.color);
+    pxText(ctx, '[' + f.level + ']  等级: ' + f.rank, fx+30, fy+16, 1, PALETTE.TEXT_DIM);
+    var barStart = fx+160;
+    pxText(ctx, '声:', barStart, fy+10, 1, PALETTE.TEXT_DIM);
+    var labels2 = ['敌', '无', '中', '友', '信'];
+    for (var r4 = 0; r4 < 5; r4++) {
+      var filled3 = r4 <= f.rep+2;
+      fill(ctx, barStart+28+r4*10, fy+4, 8, 6, filled3 ? f.color : '#222');
+      fill(ctx, barStart+28+r4*10, fy+10, 8, 3, filled3 ? f.color+'88' : '#111');
+      pxText(ctx, labels2[r4], barStart+28+r4*10, fy+14, 1, PALETTE.TEXT_DARK);
     }
-
-    // 折扣
-    const disc = f.discount >= 0 ? '+' + f.discount + '%' : f.discount + '%';
-    pxText(ctx, disc + '\u5546\u5E97', barStart + 85, fy + 10, 1,
-           f.discount < 0 ? PALETTE.SUCCESS : (f.discount > 0 ? PALETTE.DANGER : PALETTE.TEXT_DIM));
-
-    // 简介
-    pxText(ctx, f.desc, fx + 30, fy + 24, 1, PALETTE.TEXT_DIM);
-
-    // 任务进度
-    const questDone = f.missions;
-    pxText(ctx, '\u4EFB\u52A1:', barStart + 85, fy + 24, 1, PALETTE.TEXT_DIM);
-    for (let q = 0; q < f.totalM; q++) {
-      fill(ctx, barStart + 130 + q * 10, fy + 24, 8, 5,
-           q < questDone ? PALETTE.ACCENT : PALETTE.BG3);
-      border(ctx, barStart + 130 + q * 10, fy + 24, 8, 5, PALETTE.BORDER);
+    var disc2 = f.discount >= 0 ? '+' + f.discount + '%' : f.discount + '%';
+    pxText(ctx, disc2 + '商店', barStart+85, fy+10, 1, f.discount < 0 ? PALETTE.SUCCESS : f.discount > 0 ? PALETTE.DANGER : PALETTE.TEXT_DIM);
+    pxText(ctx, f.desc, fx+30, fy+24, 1, PALETTE.TEXT_DIM);
+    var qDone = f.missions;
+    pxText(ctx, '任务:', barStart+85, fy+24, 1, PALETTE.TEXT_DIM);
+    for (var q2 = 0; q2 < f.totalM; q2++) {
+      fill(ctx, barStart+130+q2*10, fy+24, 8, 5, q2 < qDone ? PALETTE.ACCENT : PALETTE.BG3);
+      border(ctx, barStart+130+q2*10, fy+24, 8, 5, PALETTE.BORDER);
     }
-  });
-
-  // 底部派系快捷信息
-  fill(ctx, 0, H - 20, W, 20, PALETTE.BG3);
-  border(ctx, 0, H - 20, W, 20, PALETTE.ACCENT);
-  pxText(ctx, '[\u70B9\u51FB\u6D3E\u7CFB] \u67E5\u770B\u4EFB\u52A1   [\u4EFB] \u6D3E\u7CFB\u4EFB\u52A1   [\u5546] \u5546\u4E1A\u5E02   [\u8FD4] \u8FD4\u56DE', 4, H - 14, 1, PALETTE.TEXT_DIM);
-
+  }
+  fill(ctx, 0, H-20, W, 20, PALETTE.BG3);
+  border(ctx, 0, H-20, W, 20, PALETTE.ACCENT);
+  pxText(ctx, '[点击派系] 查看任务  [任] 派系任务  [商] 商业市  [返] 返回', 4, H-14, 1, PALETTE.TEXT_DIM);
   crtLines(ctx, W, H);
   vignette(ctx, W, H);
 }
 
 // ============================================================
-// 画面4: 零点碎片收集 + 结局预览
+// 画面4: 零点碎片收集
 // ============================================================
 function renderFragmentsScene(canvas) {
-  const ctx = canvas.getContext('2d');
-  const W = canvas.width, H = canvas.height;
-  const t = Date.now();
-
+  var ctx = canvas.getContext('2d');
+  var W = canvas.width, H = canvas.height;
+  var t = Date.now();
   fill(ctx, 0, 0, W, H, PALETTE.BG);
-
-  // 深色背景带辐射纹理
-  ctx.fillStyle = PALETTE.BG2;
-  ctx.fillRect(0, 0, W, H);
-
-  // 背景辐射网格
-  const radAlpha = 0.05 + Math.sin(t / 1000) * 0.03;
-  ctx.strokeStyle = PALETTE.F_ZERO + Math.floor(radAlpha * 255).toString(16).padStart(2, '0');
+  ctx.fillStyle = PALETTE.BG2; ctx.fillRect(0, 0, W, H);
+  var radAlpha = 0.05 + Math.sin(t/1000)*0.03;
+  ctx.strokeStyle = PALETTE.F_ZERO + Math.floor(radAlpha*255).toString(16).padStart(2,'0');
   ctx.lineWidth = 1;
-  for (let gx = 0; gx < W; gx += 20) {
-    ctx.beginPath(); ctx.moveTo(gx, 0); ctx.lineTo(gx, H); ctx.stroke();
-  }
-  for (let gy = 0; gy < H; gy += 20) {
-    ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(W, gy); ctx.stroke();
-  }
-
-  // 标题
+  for (var gx2 = 0; gx2 < W; gx2 += 20) { ctx.beginPath(); ctx.moveTo(gx2, 0); ctx.lineTo(gx2, H); ctx.stroke(); }
+  for (var gy2 = 0; gy2 < H; gy2 += 20) { ctx.beginPath(); ctx.moveTo(0, gy2); ctx.lineTo(W, gy2); ctx.stroke(); }
   fill(ctx, 0, 0, W, 20, PALETTE.BG3);
   border(ctx, 0, 0, W, 20, PALETTE.F_ZERO);
-  pxText(ctx, '\u2605 \u96F6\u70B9\u788D\u7247 \u2605', 4, 6, 1.2, PALETTE.F_ZERO);
-  pxText(ctx, '\u56DE:24   \u79EF\u5206: 4280   \u4E58\u5458: 4', 180, 6, 1, PALETTE.TEXT_DIM);
+  pxTextCenter(ctx, '★ 零点碎片 ★', W/2, 6, 1.2, PALETTE.F_ZERO);
+  pxText(ctx, '回合:24  积分: 4280  乘员: 4', 180, 6, 1, PALETTE.TEXT_DIM);
 
-  // 碎片详情
-  const fragments = [
-    { id: 1, name: '\u89C9\u9192',        loc: '\u94C1\u523A\u9547',        req: '\u94C1\u810A+2\u58F0\u671B',    found: true,  color: PALETTE.F_ZERO },
-    { id: 2, name: '\u7B2C\u4E00\u7EB9',   loc: '\u94FD\u9547',            req: '\u6253\u6377+1\u58F0\u671B',     found: true,  color: PALETTE.F_ZERO },
-    { id: 3, name: '\u4FE1\u53F7',        loc: '\u7070\u8C37',             req: '\u5B8C\u6210\u4E3B\u7EBF',       found: true,  color: PALETTE.F_ZERO },
-    { id: 4, name: '\u6863\u6848',        loc: '\u96F7\u70F9\u5E9F\u589F',     req: '\u6536\u96C6\u5168\u90E8\u8BB0\u5F55',   found: false, color: PALETTE.F_ZERO + '66' },
-    { id: 5, name: '\u5173\u952E',        loc: '\u94FD\u5C71\u8C37',       req: '\u6253\u8D25\u5E1D\u56FD',       found: false, color: PALETTE.F_ZERO + '44' },
-    { id: 6, name: '\u95E8',             loc: '\u7EAF\u7D20\u7EDD\u7F6E',       req: '\u7EAF\u571F+2\u58F0\u671B',      found: false, color: PALETTE.F_ZERO + '44' },
-    { id: 7, name: '\u6838\u5FC3',        loc: '\u96F7\u70F9\u8BBE\u65BD',      req: '\u6536\u96C6\u5168\u90E8\u788D\u7247',    found: false, color: PALETTE.F_ZERO + '22' },
+  var fragments = [
+    {id:1, name:'觉醒了', loc:'铁刺镇', req:'铁脊+2声望', found:true, color:PALETTE.F_ZERO},
+    {id:2, name:'第一纹', loc:'锈镇', req:'打捷+1声望', found:true, color:PALETTE.F_ZERO},
+    {id:3, name:'信号', loc:'灰谷', req:'完成主线', found:true, color:PALETTE.F_ZERO},
+    {id:4, name:'档案', loc:'雷烽废墟', req:'收集全部记录', found:false, color:PALETTE.F_ZERO+'66'},
+    {id:5, name:'关键', loc:'锈山谷', req:'打败帝国', found:false, color:PALETTE.F_ZERO+'44'},
+    {id:6, name:'门', loc:'纯素绝地', req:'纯土+2声望', found:false, color:PALETTE.F_ZERO+'44'},
+    {id:7, name:'核心', loc:'雷烽设施', req:'收集全部碎片', found:false, color:PALETTE.F_ZERO+'22'}
   ];
 
-  // 碎片进度条 (大号)
-  fill(ctx, 4, 24, W - 8, 20, PALETTE.BG2);
-  border(ctx, 4, 24, W - 8, 20, PALETTE.F_ZERO);
-  pxText(ctx, '\u96F6\u70B9\u788D\u7247\u6536\u96C6:', 8, 29, 1, PALETTE.F_ZERO);
-
-  // 碎片图标 (顶部横排)
-  for (let fi = 0; fi < 7; fi++) {
-    const fx2 = 8 + fi * 44;
-    const fy2 = 28;
-    const glow = Math.sin(t / 500 + fi * 0.5) * 0.5 + 0.5;
-    const fg = fragments[fi];
-    drawFragment(ctx, fx2, fy2, 1.5, fg.found ? glow : 0, fg.color);
-    pxText(ctx, (fi + 1).toString(), fx2 + 5, fy2 + 16, 1, fg.found ? PALETTE.F_ZERO : PALETTE.F_ZERO + '44');
+  fill(ctx, 4, 24, W-8, 20, PALETTE.BG2);
+  border(ctx, 4, 24, W-8, 20, PALETTE.F_ZERO);
+  pxText(ctx, '零点碎片收集:', 8, 29, 1, PALETTE.F_ZERO);
+  for (var ffi = 0; ffi < 7; ffi++) {
+    var ffx = 8+ffi*44, ffy2 = 28;
+    var glow2 = Math.sin(t/500+ffi*0.5)*0.5+0.5;
+    var fg = fragments[ffi];
+    drawFragment(ctx, ffx, ffy2, 1.5, fg.found ? glow2 : 0, fg.color);
+    pxText(ctx, (ffi+1).toString(), ffx+5, ffy2+16, 1, fg.found ? PALETTE.F_ZERO : PALETTE.F_ZERO+'44');
   }
-
-  // 进度条
-  fill(ctx, 8, 48, W - 16, 6, PALETTE.BG3);
-  fill(ctx, 8, 48, Math.floor((W - 16) * 3 / 7), 6, PALETTE.F_ZERO);
+  fill(ctx, 8, 48, W-16, 6, PALETTE.BG3);
+  fill(ctx, 8, 48, Math.floor((W-16)*3/7), 6, PALETTE.F_ZERO);
   pxText(ctx, '3 / 7', 10, 47, 1, PALETTE.BG);
-  pxText(ctx, '3 / 7', W - 36, 47, 1, PALETTE.F_ZERO);
+  pxText(ctx, '3 / 7', W-36, 47, 1, PALETTE.F_ZERO);
 
-  // 碎片详情面板
-  fragments.forEach((f, i) => {
-    const row = Math.floor(i / 2);
-    const col = i % 2;
-    const fy = 60 + row * 38;
-    const fx = 4 + col * (W / 2);
-    const fw = W / 2 - 8;
-
-    fill(ctx, fx, fy, fw, 35, f.found ? PALETTE.BG2 : PALETTE.BG3);
-    border(ctx, fx, fy, fw, 35, f.found ? PALETTE.F_ZERO : PALETTE.BORDER);
-
-    // 碎片图标
-    drawFragment(ctx, fx + 4, fy + 4, 1.5, f.found ? Math.sin(t/400+i)*0.5+0.5 : 0, f.color);
-
-    // 碎片编号
-    pxText(ctx, '#' + f.id.toString().padStart(2, '0'), fx + 22, fy + 6, 1.3, f.color);
-    pxText(ctx, f.name, fx + 22, fy + 16, 1, f.found ? PALETTE.TEXT : PALETTE.TEXT_DIM);
-    pxText(ctx, f.found ? '[\u5DF2\u83B7] ' + f.loc : '[\u9501\u5B9A] ' + f.req,
-           fx + 22, fy + 25, 1, f.found ? PALETTE.SUCCESS : PALETTE.TEXT_DARK);
-  });
-
-  // 真结局预览
-  const trueEndingY = H - 50;
-  fill(ctx, 4, trueEndingY, W - 8, 46, PALETTE.BG2);
-  border(ctx, 4, trueEndingY, W - 8, 46, PALETTE.F_ZERO, 2);
-
-  // 闪烁边框效果
-  const borderFlash = Math.sin(t / 300) > 0;
-  if (borderFlash) {
-    border(ctx, 4, trueEndingY, W - 8, 46, PALETTE.F_ZERO + '88', 2);
+  for (var ffi2 = 0; ffi2 < fragments.length; ffi2++) {
+    var f2 = fragments[ffi2];
+    var row2 = Math.floor(ffi2/2);
+    var col2 = ffi2 % 2;
+    var ffy3 = 60+row2*38;
+    var ffx2 = 4+col2*(W/2);
+    var fw2 = W/2-8;
+    fill(ctx, ffx2, ffy3, fw2, 35, f2.found ? PALETTE.BG2 : PALETTE.BG3);
+    border(ctx, ffx2, ffy3, fw2, 35, f2.found ? PALETTE.F_ZERO : PALETTE.BORDER);
+    drawFragment(ctx, ffx2+4, ffy3+4, 1.5, f2.found ? Math.sin(t/400+ffi2)*0.5+0.5 : 0, f2.color);
+    pxText(ctx, '#' + f2.id.toString().padStart(2,'0'), ffx2+22, ffy3+6, 1.3, f2.color);
+    pxText(ctx, f2.name, ffx2+22, ffy3+16, 1, f2.found ? PALETTE.TEXT : PALETTE.TEXT_DIM);
+    pxText(ctx, f2.found ? '[已获] ' + f2.loc : '[锁定] ' + f2.req, ffx2+22, ffy3+25, 1, f2.found ? PALETTE.SUCCESS : PALETTE.TEXT_DARK);
   }
 
-  pxText(ctx, '\u226B\u226B \u771F\u7ED3\u5C40: \u96F6\u70B9\u771F\u76F8 \u226A\u226A', 8, trueEndingY + 6, 1, PALETTE.F_ZERO);
-  const endingReq = '\u89E3\u9501\u6761\u4EF6: \u5168\u90E8 7 \u5757\u788D\u7247 + \u94C1\u810A+2 + \u96F7\u70F9+2 + 10000+\u79EF\u5206';
-  const reqMet = '\u6761\u4EF6\u5DF2\u6EE1: 3/7\u788D\u7247 \u94C1+2 \u2713 \u96F7+1 \u2717 \u5206\u6570 4280 \u2717';
-  pxText(ctx, endingReq, 8, trueEndingY + 18, 1, PALETTE.TEXT_DIM);
-  pxText(ctx, reqMet, 8, trueEndingY + 28, 1, PALETTE.TEXT_DIM);
-  pxText(ctx, '[\u56DE\u8F66] \u8FDB\u5165\u96F7\u70F9\u8BBE\u65BD   [\u8FD4] \u8FD4\u56DE', 8, trueEndingY + 38, 1, PALETTE.TEXT_DIM);
-
-  // 已知结局
-  pxText(ctx, '\u5DF2\u89E3\u9501: 3 \u4E2A\u7ED3\u5C40  |  \u6587\u732E\u8BB0\u5F55: 6/20  |  \u6D3E\u7CFB\u52CB\u7AE0: 4/6',
-         4, H - 8, 1, PALETTE.TEXT_DARK);
-
+  var trueEndingY = H-50;
+  fill(ctx, 4, trueEndingY, W-8, 46, PALETTE.BG2);
+  border(ctx, 4, trueEndingY, W-8, 46, PALETTE.F_ZERO, 2);
+  if (Math.sin(t/300) > 0) border(ctx, 4, trueEndingY, W-8, 46, PALETTE.F_ZERO+'88', 2);
+  pxTextCenter(ctx, '>>> 真结局: 零点真相 <<<', W/2, trueEndingY+6, 1, PALETTE.F_ZERO);
+  pxText(ctx, '解锁条件: 全部 7 块碎片 + 铁脊+2 + 雷烽+2 + 10000+积分', 8, trueEndingY+18, 1, PALETTE.TEXT_DIM);
+  pxText(ctx, '条件已满: 3/7碎片 铁脊+2 ✓ 雷烽+1 ✗ 分数 4280 ✗', 8, trueEndingY+28, 1, PALETTE.TEXT_DIM);
+  pxText(ctx, '[回车] 进入雷烽设施   [返] 返回', 8, trueEndingY+38, 1, PALETTE.TEXT_DIM);
+  pxText(ctx, '已解锁: 3 个结局  |  文啬记录: 6/20  |  派系勋章: 4/6', 4, H-8, 1, PALETTE.TEXT_DARK);
   crtLines(ctx, W, H);
   vignette(ctx, W, H);
 }
@@ -1185,7 +776,7 @@ function animate() {
   requestAnimationFrame(animate);
 }
 
-window.addEventListener('load', animate);
+animate();
 </script>
 </body>
 </html>
