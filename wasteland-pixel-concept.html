@@ -238,8 +238,17 @@ const FONT_DATA = {
 };
 CHARS.split('').forEach((c, i) => { if (FONT_DATA[c]) FONT[c] = FONT_DATA[c]; });
 
-function pxText(ctx, text, x, y, scale = 1, color = PALETTE.TEXT) {
-  if (!text) return x;
+// 检测文本是否含有像素字体不支持的字符（含中文字符）
+function hasNonBitmapChar(text) {
+  if (!text) return false;
+  for (const ch of text) {
+    if (!FONT[ch.toUpperCase()]) return true;
+  }
+  return false;
+}
+
+// 像素字体渲染（仅支持 ASCII 字符）
+function pxTextBitmap(ctx, text, x, y, scale, color) {
   ctx.fillStyle = color;
   let cx = Math.floor(x);
   for (const ch of text.toUpperCase()) {
@@ -256,14 +265,40 @@ function pxText(ctx, text, x, y, scale = 1, color = PALETTE.TEXT) {
   return cx;
 }
 
+function pxText(ctx, text, x, y, scale = 1, color = PALETTE.TEXT) {
+  if (!text) return x;
+  if (hasNonBitmapChar(text)) {
+    const fontSize = Math.round(7 * scale);
+    ctx.fillStyle = color;
+    ctx.font = `${fontSize}px 'Courier New', monospace`;
+    ctx.textBaseline = 'top';
+    ctx.fillText(text, Math.floor(x), Math.floor(y));
+    let w = 0;
+    for (const ch of text) {
+      w += (FONT[ch.toUpperCase()] ? 4 : 14) * scale;
+    }
+    return x + w;
+  }
+  return pxTextBitmap(ctx, text, x, y, scale, color);
+}
+
 function pxTextCenter(ctx, text, x, y, scale = 1, color = PALETTE.TEXT) {
   if (!text) return x;
+  if (hasNonBitmapChar(text)) {
+    const fontSize = Math.round(7 * scale);
+    ctx.fillStyle = color;
+    ctx.font = `${fontSize}px 'Courier New', monospace`;
+    ctx.textBaseline = 'top';
+    const w = ctx.measureText(text).width;
+    ctx.fillText(text, x - w / 2, Math.floor(y));
+    return x;
+  }
   let w = 0;
   for (const ch of text.toUpperCase()) {
     const glyph = FONT[ch] || FONT[' '];
     w += (glyph[0].length + 1) * scale;
   }
-  return pxText(ctx, text, x - w / 2, y, scale, color);
+  return pxTextBitmap(ctx, text, x - w / 2, y, scale, color);
 }
 
 function pxTextWrap(ctx, text, x, y, maxW, scale, color) {
@@ -272,7 +307,10 @@ function pxTextWrap(ctx, text, x, y, maxW, scale, color) {
   for (const w of words) {
     const test = line ? line + ' ' + w : w;
     let tw = 0;
-    for (const ch of test.toUpperCase()) { const g = FONT[ch] || FONT[' ']; tw += (g[0].length + 1) * scale; }
+    for (const ch of test.toUpperCase()) {
+      const g = FONT[ch] || FONT[' '];
+      tw += (g[0].length + 1) * scale;
+    }
     if (tw > maxW && line) { lines.push(line); line = w; }
     else line = test;
   }
