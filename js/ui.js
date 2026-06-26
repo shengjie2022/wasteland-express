@@ -1,6 +1,6 @@
 // ============================================================
-// 废土快递 - UI控制器 v2.0
-// 新增：存档菜单、战术战斗选择、路线辐射预览、交易参考价、乘员经验条
+// 废土快递 - UI控制器 v3.0
+// 新增：派系面板、任务面板、收藏册面板、零点碎片、羁绊显示、货物质量
 // ============================================================
 
 class UI {
@@ -23,6 +23,10 @@ class UI {
         this.mapDragStartY = 0;
         this.mapPanStartX = 0;
         this.mapPanStartY = 0;
+        // v3.0
+        this.selectedFaction = null;
+        this.selectedMission = null;
+        this.pendingStory = null;
     }
 
     init() {
@@ -179,10 +183,60 @@ class UI {
             case 'event': this.renderEvent(); break;
             case 'orders': this.renderOrders(); break;
             case 'achievements': this.renderAchievements(); break;
+            // v3.0
+            case 'factions': this.renderFactions(); break;
+            case 'missions': this.renderMissions(); break;
+            case 'fragments': this.renderFragments(); break;
+            case 'collectibles': this.renderCollectibles(); break;
         }
         this.renderStatusBar();
         this.renderLog();
         this.checkAndShowAchievementNotifications();
+        // v3.0: 检查剧情事件
+        this._checkStoryEvents();
+    }
+
+    // v3.0: 检查乘员剧情事件
+    _checkStoryEvents() {
+        if (this.currentPanel !== 'town') return;
+        const stories = this.game.getAvailableCrewStories();
+        if (stories.length > 0 && !this._storyModalOpen) {
+            const { member, storyData, node } = stories[0];
+            this._storyModalOpen = true;
+            this.pendingStory = { member, storyData, node };
+            this.showStoryModal();
+        }
+    }
+
+    showStoryModal() {
+        const { member, storyData, node } = this.pendingStory;
+        const content = document.getElementById('story-content');
+        if (!content) return;
+        content.innerHTML = `
+            <div class="story-modal">
+                <div class="story-header">
+                    <span class="story-icon">${storyData.icon}</span>
+                    <span class="story-title">${member.name}：${storyData.title}</span>
+                </div>
+                <div class="story-text">${node.text}</div>
+                <div class="story-choices">
+                    ${node.choices.map((c, i) => `
+                        <button class="btn btn-choice" onclick="ui.handleStoryChoice(${i})">${c.text}</button>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+        this.showPanel('story');
+    }
+
+    handleStoryChoice(choiceIndex) {
+        if (!this.pendingStory) return;
+        const { member, storyData } = this.pendingStory;
+        this.game.advanceCrewStory(member.id, storyData.id, choiceIndex);
+        this.pendingStory = null;
+        this._storyModalOpen = false;
+        this.showPanel('town');
+        this.showToast('剧情已更新', 'success');
     }
 
     // ========== 事件绑定 ==========
@@ -206,9 +260,14 @@ class UI {
         document.getElementById('nav-crew')?.addEventListener('click', () => this.showPanel('crew'));
         document.getElementById('nav-orders')?.addEventListener('click', () => this.showPanel('orders'));
         document.getElementById('nav-achievements')?.addEventListener('click', () => this.showPanel('achievements'));
+        // v3.0 导航
+        document.getElementById('nav-factions')?.addEventListener('click', () => this.showPanel('factions'));
+        document.getElementById('nav-missions')?.addEventListener('click', () => this.showPanel('missions'));
+        document.getElementById('nav-fragments')?.addEventListener('click', () => this.showPanel('fragments'));
+        document.getElementById('nav-collectibles')?.addEventListener('click', () => this.showPanel('collectibles'));
     }
 
-    // ========== 状态栏 ==========
+    // ========== 状态栏（v3.0 增强） ==========
     renderStatusBar() {
         const g = this.game;
         const v = g.vehicle;
@@ -216,6 +275,16 @@ class UI {
         const stats = g.getVehicleStats();
         const bar = document.getElementById('status-bar');
         if (!bar) return;
+        // v3.0: 派系声望显示
+        const repHtml = Object.entries(g.getAllFactionRep()).map(([fid, rep]) => {
+            const faction = FACTIONS[fid];
+            const level = FACTION_REP_LEVELS.find(l => l.level === rep) || FACTION_REP_LEVELS[2];
+            return `<span class="faction-rep-badge" title="${faction.name}：${level.name}" style="background:${faction.bgColor};color:${faction.color}">${faction.icon}</span>`;
+        }).join('');
+        // v3.0: 零点碎片显示
+        const fragHtml = g.zeroFragments.length > 0
+            ? `<span class="zero-frag-badge" title="零点碎片 ${g.zeroFragments.length}/7">🔮 ${g.zeroFragments.length}</span>`
+            : '';
         bar.innerHTML = `
             <div class="status-item" title="瓶盖（货币）">💰 ${g.money}</div>
             <div class="status-item" title="旧世界货币">🪙 ${g.oldWorldCurrency}</div>
@@ -224,6 +293,8 @@ class UI {
             <div class="status-item" title="货舱">📦 ${g.getUsedCargoSpace()}/${stats.cargoSpace}</div>
             <div class="status-item" title="回合">⏱️ 第${g.turn}回合</div>
             <div class="status-item" title="已完成订单">📋 ${g.completedOrders}/${g.requiredOrders}</div>
+            ${fragHtml}
+            <div class="faction-rep-bar" title="派系声望">${repHtml}</div>
             ${g.currentTown ? `<div class="status-item location">📍 ${g.currentTown.name}</div>` : '<div class="status-item traveling">🚛 旅途中</div>'}
         `;
     }
@@ -253,6 +324,7 @@ class UI {
                 <span class="town-type" style="background: ${typeData.color}33; color: ${typeData.color}">${typeData.name}</span>
             </div>
             ${completable.length > 0 ? `<div class="notice success">✅ 有${completable.length}个订单可以在此完成！已自动交付。</div>` : ''}
+            ${this.game.zeroFragments.length >= 7 ? `<div class="notice" style="background:#44ff8822;color:#44ff88;border:1px solid #44ff88">⚡ 零点设施入口已显现！前往「🔮碎片」查看</div>` : ''}
             <div class="town-actions">
                 <button class="btn btn-primary" onclick="ui.showPanel('orders')">📋 查看订单 <span class="badge">${this.game.availableOrders.length}</span></button>
                 <button class="btn btn-primary" onclick="ui.showPanel('trade')">🏪 交易市场</button>
@@ -317,15 +389,17 @@ class UI {
         }
         const map = this.game.map;
         if (!map) { ctx.restore(); return; }
-        const baseOffX = (w / zoom - 900) / 2;
-        const baseOffY = (h / zoom - 500) / 2;
+        const scaleX = w / 900;
+        const scaleY = h / 500;
+        const baseOffX = (w / zoom - w) / 2;
+        const baseOffY = (h / zoom - h) / 2;
 
         // 绘制路线
         for (const route of map.routes) {
             const from = map.towns[route.from];
             const to = map.towns[route.to];
-            const fx = from.x + baseOffX, fy = from.y + baseOffY;
-            const tx = to.x + baseOffX, ty = to.y + baseOffY;
+            const fx = from.x * scaleX + baseOffX, fy = from.y * scaleY + baseOffY;
+            const tx = to.x * scaleX + baseOffX, ty = to.y * scaleY + baseOffY;
             const danger = route.danger;
             const r = Math.round(100 + danger * 155);
             const g2 = Math.round(150 - danger * 100);
@@ -343,7 +417,7 @@ class UI {
 
         // 绘制城镇
         for (const town of map.towns) {
-            const x = town.x + baseOffX, y = town.y + baseOffY;
+            const x = town.x * scaleX + baseOffX, y = town.y * scaleY + baseOffY;
             const typeData = TOWN_TYPES[town.type];
             const isCurrent = this.game.currentTown?.id === town.id;
             const nodeR = isCurrent ? 14 : 10;
@@ -383,8 +457,8 @@ class UI {
                 (tp.route.to === tp.targetId ? tp.route.from : tp.route.to) : tp.route.from];
             const to = map.towns[tp.targetId];
             const progress = tp.currentSegment / tp.totalSegments;
-            const px = (from.x + (to.x - from.x) * progress) + baseOffX;
-            const py = (from.y + (to.y - from.y) * progress) + baseOffY;
+            const px = (from.x + (to.x - from.x) * progress) * scaleX + baseOffX;
+            const py = (from.y + (to.y - from.y) * progress) * scaleY + baseOffY;
             ctx.fillStyle = '#ff0';
             ctx.font = '20px sans-serif';
             ctx.textAlign = 'center';
@@ -638,7 +712,7 @@ class UI {
         return names[key] || key;
     }
 
-    // ========== 交易界面（带上次购入价） ==========
+    // ========== 交易界面（v3.0 增强：货物质量+派系折扣） ==========
     renderTrade() {
         const content = document.getElementById('trade-content');
         if (!content) return;
@@ -647,12 +721,15 @@ class UI {
         const cargo = this.game.vehicle.cargo;
         const stats = this.game.getVehicleStats();
         const usedSpace = this.game.getUsedCargoSpace();
+        const factionId = town.faction || this.game._getTownFaction(town);
+        const repLevel = this.game._getRepLevel(factionId);
 
         content.innerHTML = `
             <h2>🏪 ${town.name} 市场</h2>
             <div class="trade-info">
                 <span>💰 ${this.game.money} 瓶盖</span>
                 <span>📦 ${usedSpace}/${stats.cargoSpace} 货舱</span>
+                ${factionId ? `<span class="faction-discount" style="color:${FACTIONS[factionId]?.color}">${FACTIONS[factionId]?.icon} ${FACTIONS[factionId]?.shortName} ${repLevel.priceMult < 1 ? `折扣-${Math.round((1-repLevel.priceMult)*100)}%` : '正常'}</span>` : ''}
             </div>
             <div class="trade-sections">
                 <div class="trade-section">
@@ -660,6 +737,8 @@ class UI {
                     ${Object.entries(town.goods).map(([key, good]) => {
                         const lastBuy = this.game.getLastBuyPrice(town.id, key);
                         const lastBuyInfo = lastBuy ? `<span class="last-buy">上次购入: ${lastBuy.cost}💰</span>` : '';
+                        const displayPrice = Math.round(good.buyPrice * repLevel.priceMult);
+                        const discountNote = repLevel.priceMult < 1 ? `<span class="discount-badge">-${Math.round((1-repLevel.priceMult)*100)}%</span>` : '';
                         return `
                         <div class="trade-item">
                             <div class="item-info">
@@ -668,11 +747,11 @@ class UI {
                                 ${lastBuyInfo}
                             </div>
                             <div class="item-actions">
-                                <span class="price buy-price">买 ${good.buyPrice}💰</span>
+                                <span class="price buy-price">买 ${displayPrice}💰${discountNote}</span>
                                 <button class="btn btn-xs" onclick="ui.handleBuy('${key}', 1)"
-                                    ${good.stock <= 0 || this.game.money < good.buyPrice ? 'disabled' : ''}>+1</button>
+                                    ${good.stock <= 0 || this.game.money < displayPrice ? 'disabled' : ''}>+1</button>
                                 <button class="btn btn-xs" onclick="ui.handleBuy('${key}', 5)"
-                                    ${good.stock < 5 || this.game.money < good.buyPrice * 5 ? 'disabled' : ''}>+5</button>
+                                    ${good.stock < 5 || this.game.money < displayPrice * 5 ? 'disabled' : ''}>+5</button>
                             </div>
                         </div>
                     `}).join('')}
@@ -680,19 +759,26 @@ class UI {
                 <div class="trade-section">
                     <h3>你的货物</h3>
                     ${Object.keys(cargo).length === 0 ? '<p class="dim">货舱空空如也</p>' :
-                        Object.entries(cargo).filter(([_, amt]) => amt > 0).map(([key, amount]) => {
+                        Object.entries(cargo).filter(([_, data]) => {
+                            const amt = typeof data === 'object' ? data.amount : data;
+                            return amt > 0;
+                        }).map(([key, data]) => {
+                            const amount = typeof data === 'object' ? data.amount : data;
+                            const qualityData = typeof data === 'object' ? data : null;
                             const sellPrice = town.goods[key]?.sellPrice ||
                                 Math.round(GOODS[key].basePrice * town.priceModifier * 0.5);
                             const lastBuy = this.game.getLastBuyPrice(town.id, key);
                             const profitInfo = lastBuy ? `<span class="trade-profit ${(sellPrice * amount - lastBuy.cost) > 0 ? 'profit' : 'loss'}">预期${sellPrice * amount - lastBuy.cost > 0 ? '+' : ''}${sellPrice * amount - lastBuy.cost}💰</span>` : '';
+                            const qualityBadge = qualityData ? `<span class="quality-badge" style="color:${this.game._getQualityLevel(qualityData.quality).color}">${this.game._getQualityLevel(qualityData.quality).icon} ${this.game._getQualityLevel(qualityData.quality).name}</span>` : '';
                             return `
                                 <div class="trade-item">
                                     <div class="item-info">
                                         <span>${GOODS[key]?.icon} ${GOODS[key]?.name} ×${amount}</span>
+                                        ${qualityBadge}
                                         ${profitInfo}
                                     </div>
                                     <div class="item-actions">
-                                        <span class="price sell-price">卖 ${sellPrice}💰</span>
+                                        <span class="price sell-price">卖 ${Math.round(sellPrice * repLevel.priceMult)}💰</span>
                                         <button class="btn btn-xs btn-sell" onclick="ui.handleSell('${key}', 1)">-1</button>
                                         <button class="btn btn-xs btn-sell" onclick="ui.handleSell('${key}', ${amount})">全卖</button>
                                     </div>
@@ -705,7 +791,7 @@ class UI {
         `;
     }
 
-    // ========== 乘员界面（带经验条） ==========
+    // ========== 乘员界面（v3.0 增强：羁绊显示） ==========
     renderCrew() {
         const content = document.getElementById('crew-content');
         if (!content) return;
@@ -715,6 +801,11 @@ class UI {
                 ${this.game.crew.map(member => {
                     const expNeeded = this.game.getExpNeeded(member.level);
                     const expPct = Math.round((member.exp / expNeeded) * 100);
+                    const bondData = this.game.getCrewBond(member.id);
+                    const storyData = CREW_STORIES[member.role];
+                    const maxBondLevel = Math.max(0, ...Object.values(bondData.bonds || {}));
+                    const bondStage = this.game.getBondStage(maxBondLevel);
+                    const hasStory = storyData && member.id !== 'crew_starter';
                     return `
                     <div class="crew-member-card ${member.sick ? 'sick' : ''} ${member.health <= 0 ? 'dead' : ''}">
                         <div class="crew-header">
@@ -722,6 +813,8 @@ class UI {
                             <span class="crew-name">${member.name}</span>
                             <span class="crew-role">${CREW_ROLES[member.role].name} Lv.${member.level}</span>
                             ${member.sick ? '<span class="crew-status sick">🤢 生病</span>' : ''}
+                            ${maxBondLevel >= 1 ? `<span class="bond-badge" style="color:${bondStage.color}" title="羁绊：${bondStage.name}">💫 ${bondStage.name}</span>` : ''}
+                            ${hasStory ? `<span class="story-available" title="${storyData.title}">📖</span>` : ''}
                         </div>
                         <div class="crew-bars">
                             <div class="bar-container" title="生命值">
@@ -740,6 +833,15 @@ class UI {
                                 <span class="bar-value">${member.exp}/${expNeeded}</span>
                             </div>
                         </div>
+                        ${maxBondLevel >= 1 ? `
+                            <div class="crew-bonds">
+                                <span class="dim">羁绊等级：</span>
+                                ${BOND_STAGES.slice(1).map((s, i) =>
+                                    `<span class="bond-level ${maxBondLevel > i ? 'active' : ''}" style="color:${s.color}">${s.name}</span>`
+                                ).join(' → ')}
+                                <span class="bond-desc dim">${bondStage.desc}</span>
+                            </div>
+                        ` : ''}
                         <div class="crew-desc">${CREW_ROLES[member.role].desc}</div>
                         ${member.id !== 'crew_starter' ? `
                             <button class="btn btn-sm btn-danger" onclick="ui.handleFireCrew('${member.id}')">解雇</button>
@@ -909,7 +1011,245 @@ class UI {
         }, 4000);
     }
 
-    // ========== 游戏结束/胜利 ==========
+    // ========== 派系面板（v3.0） ==========
+    renderFactions() {
+        const content = document.getElementById('factions-content');
+        if (!content) return;
+        const allRep = this.game.getAllFactionRep();
+        content.innerHTML = `
+            <h2>🏛️ 废土派系</h2>
+            <div class="factions-grid">
+                ${Object.entries(FACTIONS).map(([fid, faction]) => {
+                    const rep = allRep[fid] ?? 0;
+                    const level = FACTION_REP_LEVELS.find(l => l.level === rep) || FACTION_REP_LEVELS[2];
+                    const completed = this.game.completedMissions[fid]?.size || 0;
+                    const total = FACTION_MISSIONS[fid]?.length || 0;
+                    const missions = this.game.getAvailableMissions(fid);
+                    return `
+                    <div class="faction-card" style="border-color:${faction.color}22;background:${faction.bgColor}">
+                        <div class="faction-header" style="color:${faction.color}">
+                            <span class="faction-icon">${faction.icon}</span>
+                            <span class="faction-name">${faction.name}</span>
+                        </div>
+                        <div class="faction-rep-display">
+                            <span class="faction-rep-label">声望：</span>
+                            <span class="faction-rep-level" style="color:${level.color}">${level.name}</span>
+                            <span class="faction-rep-value">(${rep > 0 ? '+' : ''}${rep})</span>
+                        </div>
+                        <div class="faction-effects">
+                            <span>价格：${level.priceMult < 1 ? `<span class="success">-${Math.round((1-level.priceMult)*100)}%</span>` : level.priceMult > 1 ? `<span class="danger">+${Math.round((level.priceMult-1)*100)}%</span>` : '正常'}</span>
+                            <span>通行：${level.canTrade ? '✅ 可交易' : '❌ 禁止'}</span>
+                        </div>
+                        <div class="faction-desc">${faction.desc}</div>
+                        <div class="faction-goals">🎯 ${faction.goals}</div>
+                        <div class="faction-missions">
+                            <span class="dim">任务链：${completed}/${total} 完成</span>
+                            ${missions.length > 0 ? `<button class="btn btn-sm btn-accent" onclick="ui.showPanel('missions');ui.selectFactionMission('${fid}')">查看任务</button>` : ''}
+                        </div>
+                    </div>
+                `}).join('')}
+            </div>
+            <div class="faction-relations">
+                <h3>🤝 派系关系</h3>
+                <div class="relations-note">派系关系影响你的行为对他方的影响程度。</div>
+            </div>
+        `;
+    }
+
+    // ========== 任务面板（v3.0） ==========
+    renderMissions() {
+        const content = document.getElementById('missions-content');
+        if (!content) return;
+        const selectedFid = this.selectedFaction || Object.keys(FACTIONS)[0];
+        const faction = FACTIONS[selectedFid];
+        const missions = this.game.getAvailableMissions(selectedFid);
+        const currentNodes = this.game.getCurrentMissionNode(selectedFid);
+        content.innerHTML = `
+            <h2>📜 ${faction.icon} ${faction.name} 任务</h2>
+            <div class="faction-tabs">
+                ${Object.entries(FACTIONS).map(([fid, f]) => `
+                    <button class="ach-tab ${selectedFid === fid ? 'active' : ''}"
+                            onclick="ui.selectFactionMission('${fid}')"
+                            style="border-color:${f.color}">
+                        ${f.icon} ${f.shortName}
+                    </button>
+                `).join('')}
+            </div>
+            <div class="missions-list">
+                ${Object.keys(currentNodes).length > 0 ? `
+                    <h3>进行中</h3>
+                    ${Object.entries(currentNodes).map(([mid, node]) => `
+                        <div class="mission-card active">
+                            <div class="mission-header">
+                                <span class="mission-name">${node.missionName}</span>
+                                <span class="mission-progress">进度 ${node.progress}</span>
+                            </div>
+                            <div class="mission-node">
+                                <span class="mission-node-desc">${node.desc}</span>
+                                ${node.flavor ? `<div class="mission-flavor">"${node.flavor}"</div>` : ''}
+                                ${node.action ? `<span class="mission-action-badge">${this.getMissionActionLabel(node.action)}</span>` : ''}
+                                ${node.reward?.factionMod ? `<span class="reward-badge">🎁 派系改装</span>` : ''}
+                                ${node.reward?.zeroFragment ? `<span class="reward-badge fragment">🔮 零点碎片</span>` : ''}
+                                <div class="mission-actions">
+                                    ${this.getMissionActionButton(node, selectedFid, mid)}
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                ` : ''}
+                <h3>可接取任务</h3>
+                ${missions.filter(m => m.currentNode === 0).length === 0 ? '<p class="dim">暂无可接取任务（完成进行中或全部完成）</p>' :
+                    missions.filter(m => m.currentNode === 0).map(m => `
+                        <div class="mission-card available">
+                            <div class="mission-header">
+                                <span class="mission-name">${m.name}</span>
+                            </div>
+                            <div class="mission-desc">${m.desc}</div>
+                            <button class="btn btn-primary btn-sm" onclick="ui.startMission('${selectedFid}','${m.id}')">
+                                接取任务
+                            </button>
+                        </div>
+                    `).join('')
+                }
+            </div>
+        `;
+    }
+
+    selectFactionMission(factionId) {
+        this.selectedFaction = factionId;
+        this.renderMissions();
+    }
+
+    getMissionActionLabel(action) {
+        const labels = { travel: '🗺️ 探索旅行', deliver: '📦 货物运送', combat: '⚔️ 战斗', explore: '🔍 废墟探索', escort: '🤝 护送', stealth: '🌫️ 潜行', event: '🎭 事件', radiation: '☢️ 辐射考验', build: '🏗️ 建设', story: '📖 剧情', choice: '⚖️ 抉择', condition: '📋 条件', finale: '⚡ 终局' };
+        return labels[action] || action;
+    }
+
+    getMissionActionButton(node, factionId, missionId) {
+        const action = node.action;
+        if (action === 'story' || action === 'choice' || action === 'finale') {
+            return `<button class="btn btn-accent btn-sm" onclick="ui.advanceMission('${factionId}','${missionId}')">执行</button>`;
+        }
+        if (action === 'condition') {
+            const canComplete = this.game.zeroFragments.length >= 5;
+            return canComplete
+                ? `<button class="btn btn-accent btn-sm" onclick="ui.advanceMission('${factionId}','${missionId}')">前往零点</button>`
+                : `<span class="dim">需要收集至少5块零点碎片（当前${this.game.zeroFragments.length}块）</span>`;
+        }
+        if (this.game.currentTown) {
+            return `<button class="btn btn-primary btn-sm" onclick="ui.startMissionTravel('${factionId}','${missionId}')">前往目标</button>`;
+        }
+        return `<span class="dim">前往${node.targetType || '目的地'}类型的城镇</span>`;
+    }
+
+    startMission(factionId, missionId) {
+        this.game.startMission(factionId, missionId);
+        this.selectedFaction = factionId;
+        this.renderMissions();
+    }
+
+    advanceMission(factionId, missionId) {
+        this.game.advanceMission(factionId, missionId);
+        this.selectedFaction = factionId;
+        this.renderMissions();
+        this.checkAndShowAchievementNotifications();
+    }
+
+    startMissionTravel(factionId, missionId) {
+        // 切换到地图并高亮目标
+        this.showPanel('map');
+        this.showToast('请选择路线前往任务目标区域', 'info');
+    }
+
+    // ========== 零点碎片面板（v3.0） ==========
+    renderFragments() {
+        const content = document.getElementById('fragments-content');
+        if (!content) return;
+        const collected = new Set(this.game.zeroFragments);
+        content.innerHTML = `
+            <h2>🔮 零点碎片</h2>
+            <div class="fragments-progress">
+                <span class="fragments-count">已收集 ${collected.size}/7</span>
+                <div class="fragments-progress-bar">
+                    <div class="fragments-progress-fill" style="width:${(collected.size/7)*100}%"></div>
+                </div>
+            </div>
+            ${collected.size >= 7 ? `
+                <div class="zero-ending-notice">
+                    <span>⚡ 所有碎片已收集！零点设施入口已显现。</span>
+                    <button class="btn btn-accent" onclick="ui.triggerTrueEnding()">进入零点</button>
+                </div>
+            ` : `<p class="dim">收集全部7块碎片以解开大寂静的真相...</p>`}
+            <div class="fragments-grid">
+                ${ZERO_FRAGMENTS.map(f => {
+                    const isCollected = collected.has(f.id);
+                    return `
+                    <div class="fragment-card ${isCollected ? 'collected' : 'locked'}">
+                        <div class="fragment-icon">${isCollected ? '🔮' : '❓'}</div>
+                        <div class="fragment-index">#${f.index}</div>
+                        <div class="fragment-name">${isCollected ? f.name : '???'}</div>
+                        ${isCollected ? `
+                            <div class="fragment-hint">📍 ${f.locationHint}</div>
+                            <div class="fragment-lore">${f.lore.replace(/\n/g, '<br>')}</div>
+                        ` : '<div class="fragment-lore dim">继续探索以发现...</div>'}
+                    </div>
+                `}).join('')}
+            </div>
+        `;
+    }
+
+    triggerTrueEnding() {
+        this.game.triggerEnding('zero_seeker');
+        this.showVictory();
+    }
+
+    // ========== 收藏册面板（v3.0 修正版） ==========
+    renderCollectibles() {
+        const content = document.getElementById('collectibles-content');
+        if (!content) return;
+        const collected = new Set(this.game.collectibles);
+        const showCategory = this._collCat || 'all';
+        const allItems = [
+            ...COLLECTIBLES.old_world_records.map(i => ({ ...i, _cat: 'records' })),
+            ...COLLECTIBLES.faction_badges.map(i => ({ ...i, _cat: 'badges' })),
+            ...COLLECTIBLES.special_items.map(i => ({ ...i, _cat: 'items' }))
+        ];
+        const filtered = showCategory === 'all' ? allItems : allItems.filter(i => i._cat === showCategory);
+        const total = allItems.length;
+        content.innerHTML = `
+            <h2>🗃️ 收藏册</h2>
+            <div class="collectibles-progress">
+                <span class="coll-count">已收集 ${collected.size}/${total}</span>
+            </div>
+            <div class="ach-tabs">
+                <button class="ach-tab ${showCategory === 'all' ? 'active' : ''}" onclick="ui.selectCollectibleCat('all')">全部</button>
+                <button class="ach-tab ${showCategory === 'records' ? 'active' : ''}" onclick="ui.selectCollectibleCat('records')">📜 旧世界记录</button>
+                <button class="ach-tab ${showCategory === 'badges' ? 'active' : ''}" onclick="ui.selectCollectibleCat('badges')">🏛️ 派系徽章</button>
+                <button class="ach-tab ${showCategory === 'items' ? 'active' : ''}" onclick="ui.selectCollectibleCat('items')">💎 特殊物品</button>
+            </div>
+            <div class="collectibles-grid">
+                ${filtered.map(item => {
+                    const isCollected = collected.has(item.id);
+                    const rarityStars = '⭐'.repeat(item.rarity || 1);
+                    return `
+                        <div class="collectible-card ${isCollected ? 'collected' : 'locked'}">
+                            <div class="coll-icon">${isCollected ? '📜' : '❓'}</div>
+                            <div class="coll-name">${isCollected ? item.name : '???'}</div>
+                            <div class="coll-rarity">${rarityStars}</div>
+                            ${isCollected ? `<div class="coll-desc">${item.desc}</div>` : '<div class="coll-desc dim">???</div>'}
+                        </div>
+                    `;
+                }).join('')}
+            </div>
+        `;
+    }
+
+    selectCollectibleCat(cat) {
+        this._collCat = cat;
+        this.renderCollectibles();
+    }
+
+    // ========== 游戏结束/胜利（v3.0 增强） ==========
     showGameOver() {
         const content = document.getElementById('main-content');
         if (!content) return;
@@ -938,11 +1278,13 @@ class UI {
     showVictory() {
         const content = document.getElementById('main-content');
         if (!content) return;
+        const ending = this.game.endingTriggered ? ENDINGS[this.game.endingTriggered] : null;
+        const score = this.game.getScore();
         content.innerHTML = `
             <div class="panel active" style="display:flex">
                 <div class="victory-screen">
-                    <h1>🎉 任务完成！</h1>
-                    <p>你成功完成了所有主要订单，成为废土上最可靠的快递员！</p>
+                    <h1 style="color:${ending?.color || '#f0c040'}">🎉 ${ending?.name || '任务完成！'}</h1>
+                    ${ending ? `<p class="ending-desc">${ending.desc}<br><span class="dim">"${ending.flavor}"</span></p>` : '<p>你成功完成了所有主要订单，成为废土上最可靠的快递员！</p>'}
                     <div class="final-stats">
                         <h3>最终统计</h3>
                         <div>📏 行驶距离: ${Math.round(this.game.stats.distanceTraveled)} km</div>
@@ -951,7 +1293,11 @@ class UI {
                         <div>💰 总收入: ${this.game.stats.moneyEarned}</div>
                         <div>⏱️ 总回合数: ${this.game.turn}</div>
                         <div>💰 最终资金: ${this.game.money}</div>
+                        <div>🏛️ 派系声望: ${Object.entries(this.game.factionRep).map(([fid,r]) => `${FACTIONS[fid]?.icon}${r>0?'+':''}${r}`).join(' ')}</div>
+                        <div>🔮 零点碎片: ${this.game.zeroFragments.length}/7</div>
                         <div>🏆 解锁成就: ${Object.keys(this.game.achievements).length}/${Object.keys(ACHIEVEMENTS).length}</div>
+                        <div>🗃️ 收藏品: ${this.game.collectibles.length}</div>
+                        <div>⭐ 最终分数: ${score}</div>
                     </div>
                     <button class="btn btn-accent btn-full" onclick="ui.game.deleteSave();location.reload()">
                         🔄 再来一局
@@ -1130,5 +1476,8 @@ let game, ui;
 document.addEventListener('DOMContentLoaded', () => {
     game = new Game();
     ui = new UI(game);
+    // 显式挂到 window，确保 inline onclick 能访问
+    window.game = game;
+    window.ui = ui;
     ui.init();
 });
