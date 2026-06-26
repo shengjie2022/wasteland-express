@@ -275,35 +275,47 @@ function pxTextBitmap(ctx, text, x, y, scale, color) {
   return cx;
 }
 
+function pxTextNative(ctx, text, x, y, scale, color) {
+  ctx.save();
+  try {
+    const fontSize = Math.round(8 * scale);
+    ctx.fillStyle = color;
+    ctx.font = `${fontSize}px 'Microsoft YaHei', 'SimHei', 'PingFang SC', sans-serif`;
+    ctx.textBaseline = 'alphabetic';
+    ctx.textAlign = 'left';
+    ctx.fillText(text, Math.floor(x), Math.floor(y) + Math.round(6 * scale));
+  } finally {
+    ctx.restore();
+  }
+  let w = 0;
+  for (const ch of text) {
+    w += (FONT[ch.toUpperCase()] ? 4 : 13) * scale;
+  }
+  return x + w;
+}
+
 function pxText(ctx, text, x, y, scale = 1, color = PALETTE.TEXT) {
   if (!text) return x;
-  // 含中文 → 使用 Canvas 原生文字渲染（等宽字体，大小匹配像素字）
   if (hasNonBitmapChar(text)) {
-    const fontSize = Math.round(7 * scale);
-    ctx.fillStyle = color;
-    ctx.font = `${fontSize}px 'Courier New', monospace`;
-    ctx.textBaseline = 'top';
-    ctx.fillText(text, Math.floor(x), Math.floor(y));
-    // 返回估算宽度（每个 ASCII 字符约 4px，中文约 14px）
-    let w = 0;
-    for (const ch of text) {
-      w += (FONT[ch.toUpperCase()] ? 4 : 14) * scale;
-    }
-    return x + w;
+    return pxTextNative(ctx, text, x, y, scale, color);
   }
-  // 纯 ASCII → 像素点阵渲染
   return pxTextBitmap(ctx, text, x, y, scale, color);
 }
 
 function pxTextCenter(ctx, text, x, y, scale = 1, color = PALETTE.TEXT) {
   if (!text) return x;
   if (hasNonBitmapChar(text)) {
-    const fontSize = Math.round(7 * scale);
-    ctx.fillStyle = color;
-    ctx.font = `${fontSize}px 'Courier New', monospace`;
-    ctx.textBaseline = 'top';
-    const w = ctx.measureText(text).width;
-    ctx.fillText(text, x - w / 2, Math.floor(y));
+    ctx.save();
+    try {
+      const fontSize = Math.round(8 * scale);
+      ctx.fillStyle = color;
+      ctx.font = `${fontSize}px 'Microsoft YaHei', 'SimHei', 'PingFang SC', sans-serif`;
+      ctx.textBaseline = 'alphabetic';
+      const w = ctx.measureText(text).width;
+      ctx.fillText(text, x - w / 2, Math.floor(y) + Math.round(6 * scale));
+    } finally {
+      ctx.restore();
+    }
     return x;
   }
   let w = 0;
