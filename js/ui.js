@@ -690,15 +690,15 @@ class UI {
                         }).join('')
                     }
                 </div>
-                ${this.foundMod ? `
-                    <div class="found-mod">
-                        <h3>拾取的零件</h3>
-                        <div class="shop-mod-card">
-                            <span class="mod-name" style="color:${RARITY_COLORS[MODIFICATIONS[this.foundMod].rarity]}">${MODIFICATIONS[this.foundMod].name}</span>
-                            <button class="btn btn-sm btn-accent" onclick="ui.handleInstallFoundMod()">安装</button>
-                        </div>
+            ` : '<p class="dim">📍 到达城镇后可在当地商店购买零件</p>'}
+            ${this.game.currentTown ? `
+                <div class="found-mod">
+                    <h3>拾取的零件</h3>
+                    <div class="shop-mod-card">
+                        <span class="mod-name" style="color:${RARITY_COLORS[MODIFICATIONS[this.foundMod].rarity]}">${MODIFICATIONS[this.foundMod].name}</span>
+                        <button class="btn btn-sm btn-accent" onclick="ui.handleInstallFoundMod()">安装</button>
                     </div>
-                ` : ''}
+                </div>
             ` : ''}
         `;
     }
@@ -717,7 +717,10 @@ class UI {
         const content = document.getElementById('trade-content');
         if (!content) return;
         const town = this.game.currentTown;
-        if (!town) return;
+        if (!town) {
+            content.innerHTML = '<p class="dim">旅途中无法交易，请先到达一个城镇。</p>';
+            return;
+        }
         const cargo = this.game.vehicle.cargo;
         const stats = this.game.getVehicleStats();
         const usedSpace = this.game.getUsedCargoSpace();
