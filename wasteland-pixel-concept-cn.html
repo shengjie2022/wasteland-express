@@ -249,81 +249,47 @@ const FONT_DATA = {
 CHARS.split('').forEach((c, i) => { if (FONT_DATA[c]) FONT[c] = FONT_DATA[c]; });
 
 // 检测文本是否含有像素字体不支持的字符（含中文字符）
-function hasNonBitmapChar(text) {
-  if (!text) return false;
-  for (const ch of text) {
-    if (!FONT[ch.toUpperCase()]) return true;
-  }
-  return false;
-}
-
-// 像素字体渲染（仅支持 ASCII 字符）
-function pxTextBitmap(ctx, text, x, y, scale, color) {
-  ctx.fillStyle = color;
-  let cx = Math.floor(x);
-  for (const ch of text.toUpperCase()) {
-    const glyph = FONT[ch] || FONT[' '];
-    for (let row = 0; row < glyph.length; row++) {
-      for (let col = 0; col < glyph[row].length; col++) {
-        if (glyph[row][col]) {
-          ctx.fillRect(cx + col * scale, Math.floor(y) + row * scale, Math.ceil(scale), Math.ceil(scale));
-        }
-      }
-    }
-    cx += (glyph[0].length + 1) * scale;
-  }
-  return cx;
-}
-
+// Canvas 原生文字渲染（统一方案，保证中文在所有平台上可靠显示）
 function pxTextNative(ctx, text, x, y, scale, color) {
   ctx.save();
   try {
-    const fontSize = Math.round(8 * scale);
+    // 最小 11px，保证 Windows 上中文字体能显示
+    const fontSize = Math.max(11, Math.round(8 * scale));
     ctx.fillStyle = color;
-    ctx.font = `${fontSize}px 'Microsoft YaHei', 'SimHei', 'PingFang SC', sans-serif`;
+    ctx.font = `${fontSize}px 'Microsoft YaHei', 'SimHei', monospace`;
     ctx.textBaseline = 'alphabetic';
     ctx.textAlign = 'left';
     ctx.fillText(text, Math.floor(x), Math.floor(y) + Math.round(6 * scale));
   } finally {
     ctx.restore();
   }
+  // 估算宽度：ASCII≈6px/字符，中文≈14px/字符
   let w = 0;
   for (const ch of text) {
-    w += (FONT[ch.toUpperCase()] ? 4 : 13) * scale;
+    w += (FONT[ch.toUpperCase()] ? 6 : 14) * scale;
   }
   return x + w;
 }
 
 function pxText(ctx, text, x, y, scale = 1, color = PALETTE.TEXT) {
   if (!text) return x;
-  if (hasNonBitmapChar(text)) {
-    return pxTextNative(ctx, text, x, y, scale, color);
-  }
-  return pxTextBitmap(ctx, text, x, y, scale, color);
+  return pxTextNative(ctx, text, x, y, scale, color);
 }
 
 function pxTextCenter(ctx, text, x, y, scale = 1, color = PALETTE.TEXT) {
   if (!text) return x;
-  if (hasNonBitmapChar(text)) {
-    ctx.save();
-    try {
-      const fontSize = Math.round(8 * scale);
-      ctx.fillStyle = color;
-      ctx.font = `${fontSize}px 'Microsoft YaHei', 'SimHei', 'PingFang SC', sans-serif`;
-      ctx.textBaseline = 'alphabetic';
-      const w = ctx.measureText(text).width;
-      ctx.fillText(text, x - w / 2, Math.floor(y) + Math.round(6 * scale));
-    } finally {
-      ctx.restore();
-    }
-    return x;
+  ctx.save();
+  try {
+    const fontSize = Math.max(11, Math.round(8 * scale));
+    ctx.fillStyle = color;
+    ctx.font = `${fontSize}px 'Microsoft YaHei', 'SimHei', monospace`;
+    ctx.textBaseline = 'alphabetic';
+    const w = ctx.measureText(text).width;
+    ctx.fillText(text, x - w / 2, Math.floor(y) + Math.round(6 * scale));
+  } finally {
+    ctx.restore();
   }
-  let w = 0;
-  for (const ch of text.toUpperCase()) {
-    const glyph = FONT[ch] || FONT[' '];
-    w += (glyph[0].length + 1) * scale;
-  }
-  return pxTextBitmap(ctx, text, x - w / 2, y, scale, color);
+  return x;
 }
 
 function pxTextWrap(ctx, text, x, y, maxW, scale, color) {
