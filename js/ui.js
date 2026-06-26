@@ -241,22 +241,35 @@ class UI {
 
     // ========== 事件绑定 ==========
     bindEvents() {
-        document.getElementById('btn-standard')?.addEventListener('click', () => {
-            this.game.startGame('standard');
-            this.showPanel('town');
+        // 事件委托：整个 #app 区域统一监听点击（处理动态创建的按钮）
+        document.getElementById('app')?.addEventListener('click', (e) => {
+            const onclick = e.target.getAttribute?.('onclick') || '';
+            const closest = e.target.closest('[onclick]');
+            const delegatedOnclick = closest?.getAttribute?.('onclick') || '';
+
+            if (delegatedOnclick === 'ui.handleContinue()') { this.handleContinue(); return; }
+            if (delegatedOnclick === "ui.showPanel('menu')") { this.showPanel('menu'); return; }
+            if (delegatedOnclick === 'ui.handleDeleteSave()') { this.handleDeleteSave(); return; }
+            if (delegatedOnclick === 'ui.handleInstallFoundMod()') { this.handleInstallFoundMod(); return; }
+            if (delegatedOnclick.startsWith('ui.handleBuyMod(')) { this.handleBuyMod(delegatedOnclick.match(/handleBuyMod\('([^']+)'\)/)?.[1]); return; }
+            if (delegatedOnclick.startsWith('ui.handleUninstallMod(')) { this.handleUninstallMod(delegatedOnclick.match(/handleUninstallMod\('([^']+)'\)/)?.[1]); return; }
+            if (delegatedOnclick.startsWith('ui.selectRoute(')) { this.selectRoute(parseInt(delegatedOnclick.match(/selectRoute\((\d+)\)/)?.[1])); return; }
+            if (delegatedOnclick === "ui.handleDepart()") { this.handleDepart(); return; }
+            if (delegatedOnclick.startsWith('ui.handleBuy(')) { const m = delegatedOnclick.match(/handleBuy\('([^']+)',\s*(\d+)\)/); if(m) this.handleBuy(m[1], parseInt(m[2])); return; }
+            if (delegatedOnclick.startsWith('ui.handleSell(')) { const m = delegatedOnclick.match(/handleSell\('([^']+)',\s*(\d+)\)/); if(m) this.handleSell(m[1], parseInt(m[2])); return; }
+            if (delegatedOnclick.startsWith('ui.selectFactionMission(')) { const m = delegatedOnclick.match(/selectFactionMission\('([^']+)'\)/); if(m) this.selectFactionMission(m[1]); return; }
+            if (delegatedOnclick.startsWith('ui.handleStoryChoice(')) { this.handleStoryChoice(parseInt(delegatedOnclick.match(/handleStoryChoice\((\d+)\)/)?.[1])); return; }
+
+            const id = e.target.id;
+            if (id === 'btn-standard') { this.game.startGame('standard'); this.showPanel('town'); }
+            else if (id === 'btn-speed') { this.game.startGame('speed'); this.showPanel('town'); }
         });
-        document.getElementById('btn-speed')?.addEventListener('click', () => {
-            this.game.startGame('speed');
-            this.showPanel('town');
-        });
-        document.getElementById('nav-town')?.addEventListener('click', () => {
-            if (this.game.currentTown) this.showPanel('town');
-        });
+
+        // 导航按钮
+        document.getElementById('nav-town')?.addEventListener('click', () => { if (this.game.currentTown) this.showPanel('town'); });
         document.getElementById('nav-map')?.addEventListener('click', () => this.showPanel('map'));
         document.getElementById('nav-vehicle')?.addEventListener('click', () => this.showPanel('vehicle'));
-        document.getElementById('nav-trade')?.addEventListener('click', () => {
-            if (this.game.currentTown) this.showPanel('trade');
-        });
+        document.getElementById('nav-trade')?.addEventListener('click', () => { if (this.game.currentTown) this.showPanel('trade'); });
         document.getElementById('nav-crew')?.addEventListener('click', () => this.showPanel('crew'));
         document.getElementById('nav-orders')?.addEventListener('click', () => this.showPanel('orders'));
         document.getElementById('nav-achievements')?.addEventListener('click', () => this.showPanel('achievements'));
